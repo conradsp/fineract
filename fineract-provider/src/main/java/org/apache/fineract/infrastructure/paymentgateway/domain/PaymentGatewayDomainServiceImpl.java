@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentgateway.domain;
 
+import org.apache.fineract.infrastructure.paymentgateway.service.PaymentGateway;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants;
 import org.apache.fineract.portfolio.common.service.BusinessEventListner;
 import org.apache.fineract.portfolio.common.service.BusinessEventNotifierService;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +35,14 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
     private static final Logger logger = LoggerFactory.getLogger(PaymentGatewayDomainServiceImpl.class);
 
     private final BusinessEventNotifierService businessEventNotifierService;
+    
+    private final PaymentGateway paymentGateway;
 
     @Autowired
-    public PaymentGatewayDomainServiceImpl(final BusinessEventNotifierService businessEventNotifierService) {
+    public PaymentGatewayDomainServiceImpl(final BusinessEventNotifierService businessEventNotifierService,
+    		final PaymentGateway paymentGateway) {
         this.businessEventNotifierService = businessEventNotifierService;
+        this.paymentGateway = paymentGateway;
     }
 
     @PostConstruct
@@ -71,6 +77,10 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
             logger.info("businessEventWasExecuted()...........");
+            Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
+            if (entity instanceof Loan) {
+                Loan loan = (Loan) entity;
+            }
         }
     }
 

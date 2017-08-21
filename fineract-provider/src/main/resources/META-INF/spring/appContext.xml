@@ -96,4 +96,6 @@
 	</bean>
 
 	<import resource="spmContext.xml"/>
+
+	<import resource="mobileMoneyIntegrationContext.xml"/>
 </beans>
