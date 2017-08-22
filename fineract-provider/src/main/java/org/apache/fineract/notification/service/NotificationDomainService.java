@@ -16,20 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.useradministration.exception;
+package org.apache.fineract.notification.service;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+public interface NotificationDomainService {
 
-/**
- * A {@link RuntimeException} thrown when role resources are not found.
- */
-public class RoleNotFoundException extends AbstractPlatformResourceNotFoundException {
-
-    public RoleNotFoundException(final Long id) {
-        super("error.msg.role.id.invalid", "Role with identifier " + id + " does not exist", id);
-    }
-    
-    public RoleNotFoundException(final String name) {
-        super("error.msg.role.name.invalid", "Role with name " + name + " does not exist", name);
-    }
 }

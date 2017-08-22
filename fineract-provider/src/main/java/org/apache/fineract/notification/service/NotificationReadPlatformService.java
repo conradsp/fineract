@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.useradministration.exception;
+package org.apache.fineract.notification.service;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.apache.fineract.infrastructure.core.service.Page;
+import org.apache.fineract.infrastructure.core.service.SearchParameters;
+import org.apache.fineract.notification.data.NotificationData;
 
-/**
- * A {@link RuntimeException} thrown when role resources are not found.
- */
-public class RoleNotFoundException extends AbstractPlatformResourceNotFoundException {
+public interface NotificationReadPlatformService {
 
-    public RoleNotFoundException(final Long id) {
-        super("error.msg.role.id.invalid", "Role with identifier " + id + " does not exist", id);
-    }
-    
-    public RoleNotFoundException(final String name) {
-        super("error.msg.role.name.invalid", "Role with name " + name + " does not exist", name);
-    }
+    boolean hasUnreadNotifications(Long appUserId);
+
+    Page<NotificationData> getAllUnreadNotifications(SearchParameters searchParameters);
+
+    Page<NotificationData> getAllNotifications(SearchParameters searchParameters);
+
+    void updateNotificationReadStatus();
 }

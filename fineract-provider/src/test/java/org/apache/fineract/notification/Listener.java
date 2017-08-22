@@ -1,3 +1,5 @@
+package org.apache.fineract.notification;
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -16,20 +18,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.useradministration.exception;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.springframework.jms.listener.SessionAwareMessageListener;
 
-/**
- * A {@link RuntimeException} thrown when role resources are not found.
- */
-public class RoleNotFoundException extends AbstractPlatformResourceNotFoundException {
+import javax.jms.*;
 
-    public RoleNotFoundException(final Long id) {
-        super("error.msg.role.id.invalid", "Role with identifier " + id + " does not exist", id);
-    }
-    
-    public RoleNotFoundException(final String name) {
-        super("error.msg.role.name.invalid", "Role with name " + name + " does not exist", name);
+public class Listener implements SessionAwareMessageListener {
+
+    @Override
+    public void onMessage(Message message, Session session) throws JMSException {
+        TextMessage msg = (TextMessage) message;
+        System.out.println("Received: " + msg.getText());
     }
 }

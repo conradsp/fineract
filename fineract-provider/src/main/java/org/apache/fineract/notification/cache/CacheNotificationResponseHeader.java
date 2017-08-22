@@ -16,20 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.useradministration.exception;
+package org.apache.fineract.notification.cache;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
 
-/**
- * A {@link RuntimeException} thrown when role resources are not found.
- */
-public class RoleNotFoundException extends AbstractPlatformResourceNotFoundException {
+public class CacheNotificationResponseHeader {
 
-    public RoleNotFoundException(final Long id) {
-        super("error.msg.role.id.invalid", "Role with identifier " + id + " does not exist", id);
+    private boolean hasNotifications;
+    private Long lastFetch;
+
+    public CacheNotificationResponseHeader() {
     }
-    
-    public RoleNotFoundException(final String name) {
-        super("error.msg.role.name.invalid", "Role with name " + name + " does not exist", name);
+
+    public CacheNotificationResponseHeader(boolean hasNotifications, Long lastFetch) {
+        this.hasNotifications = hasNotifications;
+        this.lastFetch = lastFetch;
+    }
+
+    public boolean hasNotifications() {
+        return hasNotifications;
+    }
+
+    public void setHasNotifications(boolean hasNotifications) {
+        this.hasNotifications = hasNotifications;
+    }
+
+    public Long getLastFetch() {
+        return lastFetch;
+    }
+
+    public void setLastFetch(Long lastFetch) {
+        this.lastFetch = lastFetch;
     }
 }
