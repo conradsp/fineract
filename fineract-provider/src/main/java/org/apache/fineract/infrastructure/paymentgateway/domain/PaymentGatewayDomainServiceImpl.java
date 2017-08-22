@@ -66,7 +66,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
-            //TODO handle businessEventWasExecuted
+            paymentGateway.processPayment("Processing payment test: OnLoanApproved");
             logger.info("businessEventWasExecuted()...........");
         }
     }
@@ -77,6 +77,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
             logger.info("businessEventWasExecuted()...........");
+            paymentGateway.processPayment("Processing payment test: OnLoanDisbursal");
             Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
             if (entity instanceof Loan) {
                 Loan loan = (Loan) entity;
@@ -89,6 +90,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
+        	    paymentGateway.processPayment("Processing payment test: OnLoanRejected");
             logger.info("businessEventWasExecuted()...........");
         }
     }
@@ -98,6 +100,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
+        	    paymentGateway.processPayment("Processing payment test: OnLoanRepayment");
             logger.info("businessEventWasExecuted()...........");
         }
     }
