@@ -11,17 +11,24 @@
 	language governing permissions and limitations under the License. -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	    http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/rabbit 
+		http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+		http://www.springframework.org/schema/integration
+		http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-	<bean id="rabbitConnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+	<!-- <bean id="rabbitConnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
 		<constructor-arg value="localhost" />
+		<constructor-arg value="8092" />
 		<property name="username" value="guest" />
 		<property name="password" value="guest" />
-	</bean>
-
-	<int:header-value-router input-channel="processPaymentChannel" header-name="channel-name" />
+	</bean> -->
+	
+	<rabbit:connection-factory id="rabbitConnectionFactory" host="localhost" port="8092" username="guest" password="guest"/>
 
 	<!-- Endpoint -->
 	<int:gateway service-interface="org.apache.fineract.infrastructure.paymentgateway.service.PaymentGateway"
