@@ -19,7 +19,9 @@
 
 package org.apache.fineract.infrastructure.paymentgateway.service;
 
+import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
+
 public interface PaymentGateway {
 	
-    public void processPayment(String payment);
+    public void processPayment(Payment payment);
 }

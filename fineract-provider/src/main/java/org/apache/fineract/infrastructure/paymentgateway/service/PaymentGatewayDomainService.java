@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.domain;
+package org.apache.fineract.infrastructure.paymentgateway.service;
 
 public interface PaymentGatewayDomainService {
 }

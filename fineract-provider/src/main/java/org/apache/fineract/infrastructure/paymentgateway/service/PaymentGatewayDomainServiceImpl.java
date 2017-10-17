@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.paymentgateway.domain;
+package org.apache.fineract.infrastructure.paymentgateway.service;
 
-import org.apache.fineract.infrastructure.paymentgateway.service.PaymentGateway;
+import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants;
 import org.apache.fineract.portfolio.common.service.BusinessEventListner;
 import org.apache.fineract.portfolio.common.service.BusinessEventNotifierService;
@@ -29,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+
+import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -51,7 +53,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
     public void addListeners() {
         this.businessEventNotifierService.addBusinessEventPostListners(BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_APPROVED, new OnLoanApproved());
         this.businessEventNotifierService.addBusinessEventPostListners(BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_DISBURSAL, new OnLoanDisbursal());
-        this.businessEventNotifierService.addBusinessEventPostListners(BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_REJECTED, new OnLoanRejected());
+        this.businessEventNotifierService.addBusinessEventPostListners(BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_UNDO_DISBURSAL, new OnLoanUndoDisbursal());
         this.businessEventNotifierService.addBusinessEventPostListners(BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_MAKE_REPAYMENT, new OnLoanRepayment());
     }
 
@@ -68,7 +70,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
-            paymentGateway.processPayment("Processing payment test: OnLoanApproved");
+            //paymentGateway.processPayment("Processing payment test: OnLoanApproved");
             logger.info("businessEventWasExecuted()...........");
         }
     }
@@ -79,21 +81,46 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
             logger.info("businessEventWasExecuted()...........");
-            paymentGateway.processPayment("Processing payment test: OnLoanDisbursal");
+            logger.info("businessEventEntity..........."+ businessEventEntity);
+            
             Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
-            if (entity instanceof Loan) {
+            logger.info("Not null..........."+(entity != null));
+            if (entity != null) {
                 Loan loan = (Loan) entity;
+                Payment payment =new Payment();
+                payment.setPaymentId(1l);
+                payment.setClientId(loan.getClientId());
+                payment.setEntityId(loan.getId());
+                payment.setEntityType("Loan");
+                payment.setAction("LoanDisbursal");
+                payment.setDateCreated(new Date());
+                
+                logger.info("Object..........."+payment.toString());
+                paymentGateway.processPayment(payment);
             }
         }
     }
 
-    private class OnLoanRejected extends PaymentGatewayBusinessEventAdapter {
+    private class OnLoanUndoDisbursal extends PaymentGatewayBusinessEventAdapter {
 
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
-        	    paymentGateway.processPayment("Processing payment test: OnLoanRejected");
-            logger.info("businessEventWasExecuted()...........");
+        	    logger.info("businessEventWasExecuted()...........");
+            logger.info("businessEventEntity..........."+ businessEventEntity);
+                
+            Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
+            logger.info("Not null..........."+(entity != null));
+            if (entity != null) {
+                Loan loan = (Loan) entity;
+                Payment payment =new Payment();
+                payment.setPaymentId(1l);
+                payment.setClientId(loan.getClientId());
+                payment.setEntityId(loan.getId());
+                payment.setEntityType("Loan");
+                payment.setAction("UndoLoanDisbursal");
+                paymentGateway.processPayment(payment);
+            }
         }
     }
 
@@ -102,7 +129,6 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
-        	    paymentGateway.processPayment("Processing payment test: OnLoanRepayment");
             logger.info("businessEventWasExecuted()...........");
         }
     }
