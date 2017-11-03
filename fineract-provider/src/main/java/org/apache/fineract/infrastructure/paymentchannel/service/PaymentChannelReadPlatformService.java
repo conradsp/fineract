@@ -17,17 +17,15 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentchannel.service;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentAck;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentResponse;
+import java.util.Collection;
 
-public interface PaymentGateway {
+import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
+
+public interface PaymentChannelReadPlatformService {
+
+	Collection<PaymentChannelData> retrieveAllPaymentChannelData();
 	
-    public void processPaymentRequest(Payment payment);
-    
-    public void processPaymentAck(PaymentAck paymentAck);
-    
-    public void processPaymentResponse(PaymentResponse paymentResponse);
+	PaymentChannelData retrievePaymentChannelDataById(Long id);
 }

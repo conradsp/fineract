@@ -17,17 +17,16 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentgateway.domain;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentAck;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentResponse;
+public class PaymentAck {
+	private long paymentId;
 
-public interface PaymentGateway {
-	
-    public void processPaymentRequest(Payment payment);
-    
-    public void processPaymentAck(PaymentAck paymentAck);
-    
-    public void processPaymentResponse(PaymentResponse paymentResponse);
+	public long getPaymentId() {
+		return paymentId;
+	}
+
+	public void setPaymentId(long paymentId) {
+		this.paymentId = paymentId;
+	}
 }

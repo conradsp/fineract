@@ -96,7 +96,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
                 payment.setDateCreated(new Date());
                 
                 logger.info("Object..........."+payment.toString());
-                paymentGateway.processPayment(payment);
+                paymentGateway.processPaymentRequest(payment);
             }
         }
     }
@@ -119,7 +119,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
                 payment.setEntityId(loan.getId());
                 payment.setEntityType("Loan");
                 payment.setAction("UndoLoanDisbursal");
-                paymentGateway.processPayment(payment);
+                paymentGateway.processPaymentRequest(payment);
             }
         }
     }

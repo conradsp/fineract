@@ -17,17 +17,29 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentchannel.service;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentAck;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentResponse;
+import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 
-public interface PaymentGateway {
-	
-    public void processPaymentRequest(Payment payment);
-    
-    public void processPaymentAck(PaymentAck paymentAck);
-    
-    public void processPaymentResponse(PaymentResponse paymentResponse);
+public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWritePlatformService{
+
+	@Override
+	public CommandProcessingResult createPaymentChannel(JsonCommand command) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CommandProcessingResult updatePaymentChannel(Long chargeId, JsonCommand command) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CommandProcessingResult deletePaymentChannel(Long chargeId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

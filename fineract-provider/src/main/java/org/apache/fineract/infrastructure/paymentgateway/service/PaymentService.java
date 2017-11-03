@@ -19,15 +19,15 @@
 
 package org.apache.fineract.infrastructure.paymentgateway.service;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentAck;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentResponse;
+import org.springframework.messaging.Message;
 
-public interface PaymentGateway {
+public class PaymentService {
 	
-    public void processPaymentRequest(Payment payment);
-    
-    public void processPaymentAck(PaymentAck paymentAck);
-    
-    public void processPaymentResponse(PaymentResponse paymentResponse);
+	public void printConsole(Message<?> message){
+		System.err.println("======================================================");
+		System.err.println("=========== NEW RESPONSE =============================");
+		System.err.println("======================================================");
+		System.err.println(message.getPayload());
+		System.err.println("======================================================");
+	}
 }

@@ -17,17 +17,17 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentgateway.service.paymentchannel;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentAck;
-import org.apache.fineract.infrastructure.paymentgateway.domain.PaymentResponse;
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
+import org.springframework.stereotype.Service;
 
-public interface PaymentGateway {
-	
-    public void processPaymentRequest(Payment payment);
-    
-    public void processPaymentAck(PaymentAck paymentAck);
-    
-    public void processPaymentResponse(PaymentResponse paymentResponse);
+@Service
+public interface PaymentChannelService {
+
+	public void save(PaymentChannel paymentChannel);
+
+	public void update(PaymentChannel paymentChannel);
+
+	public void delete(Long paymentChannel);
 }
