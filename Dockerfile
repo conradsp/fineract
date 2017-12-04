@@ -1,9 +1,8 @@
 
-FROM java:8
+FROM fineract-base:latest
 
 MAINTAINER  Antony Omeri, antonyomeri@gmail.com
 
-RUN mkdir -p /app
 WORKDIR /app
 
-RUN ./build.sh
+CMD ["/bin/bash", "./build.sh"]
