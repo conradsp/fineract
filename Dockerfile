@@ -1,5 +1,5 @@
 
-FROM fineract-base:latest
+FROM aomeri/fineract-base:latest
 
 MAINTAINER  Antony Omeri, antonyomeri@gmail.com
 
