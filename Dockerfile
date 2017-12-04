@@ -1,3 +1,5 @@
+FROM scratch
+
 MAINTAINER  Antony Omeri <antonyomeri@gmail.com>
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
