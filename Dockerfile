@@ -1,6 +1,6 @@
-FROM scratch
+FROM  phusion/baseimage:0.9.17
 
-MAINTAINER  Antony Omeri <antonyomeri@gmail.com>
+MAINTAINER  Author Name <author@email.com>
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 
@@ -8,7 +8,6 @@ RUN apt-get -y update
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q python-software-properties software-properties-common
 
-#Install Oracle Java 8
 ENV JAVA_VER 8
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
@@ -21,9 +20,10 @@ RUN echo 'deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main' >> /
     apt-get clean && \
     rm -rf /var/cache/oracle-jdk${JAVA_VER}-installer
 
-#Set Oracle Java as the default Java
 RUN update-java-alternatives -s java-8-oracle
 
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> ~/.bashrc
 
-#RUN /build.sh
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+CMD ["/sbin/my_init"]
