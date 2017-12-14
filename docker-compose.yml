@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+   tenants_db:
+     container_name: tenants_db_server
+     image: mysql:5.7
+     ports:
+        - 3307:3306
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: omexit@254
+       MYSQL_DATABASE: mifosplatform-tenants
+       MYSQL_USER: fineract
+       MYSQL_PASSWORD: mysql
+
+   tenant_1:
+     container_name: tenant_1_server
+     image: mysql:5.7
+     ports:
+        - 3308:3306
+     volumes:
+       - db_data1:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: omexit@254
+       MYSQL_DATABASE: mifostenant-default
+       MYSQL_USER: fineract
+       MYSQL_PASSWORD: mysql
+
+volumes:
+    db_data:
+        external: true
+    db_data1:
+        external: true
