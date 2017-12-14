@@ -29,6 +29,13 @@ services:
        MYSQL_USER: fineract
        MYSQL_PASSWORD: mysql
 
+   fineract:
+     container_name: fineract_server
+     image: aomeri/fineract:latest
+     ports:
+       - 8443:443
+     restart: always
+
 volumes:
     db_data:
         external: true
