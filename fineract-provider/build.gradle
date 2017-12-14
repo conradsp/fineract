@@ -158,6 +158,7 @@ rat {
 	//Docker files
 	'**/DockerfileBase',
 	'**/Dockerfile',
+    '**/docker-compose.yml',
 	]
 }
 
