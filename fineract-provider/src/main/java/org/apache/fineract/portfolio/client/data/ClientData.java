@@ -21,10 +21,12 @@ package org.apache.fineract.portfolio.client.data;
 import java.util.Collection;
 import java.util.List;
 
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.fineract.infrastructure.bulkimport.constants.TemplatePopulateImportConstants;
 import org.apache.fineract.infrastructure.codes.data.CodeValueData;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.infrastructure.dataqueries.data.DatatableData;
@@ -106,6 +108,118 @@ final public class ClientData implements Comparable<ClientData> {
 	private final Boolean isAddressEnabled;
 
     private final List<DatatableData> datatables;
+
+    //import fields
+    private transient Integer rowIndex;
+    private String dateFormat;
+    private String locale;
+    private Long clientTypeId;
+    private Long genderId;
+    private Long clientClassificationId;
+    private Long legalFormId;
+    private LocalDate submittedOnDate;
+
+    public static ClientData importClientEntityInstance(Long legalFormId,Integer rowIndex,String fullname,Long officeId, Long clientTypeId,
+            Long clientClassificationId,Long staffId,Boolean active,LocalDate activationDate,LocalDate submittedOnDate,
+            String externalId,LocalDate dateOfBirth,String mobileNo,ClientNonPersonData clientNonPersonDetails,
+            AddressData address,String locale,String dateFormat){
+        return  new ClientData(legalFormId,rowIndex,fullname, null, null, null, submittedOnDate,activationDate,active, externalId,
+        		officeId, staffId,mobileNo,dateOfBirth,clientTypeId, null,clientClassificationId,null,
+        		address,clientNonPersonDetails, locale,dateFormat);
+    }
+
+    public static ClientData importClientPersonInstance(Long legalFormId,Integer rowIndex,String firstName,String lastName,String middleName,
+            LocalDate submittedOn,LocalDate activationDate,Boolean active,String externalId,Long officeId,
+            Long staffId,String mobileNo, LocalDate dob,Long clientTypeId,Long genderId,
+            Long clientClassificationId, Boolean isStaff, AddressData address,String locale,String dateFormat){
+
+        return new ClientData(legalFormId,rowIndex, null, firstName,lastName,middleName,submittedOn,activationDate,active,externalId,
+                officeId,staffId,mobileNo,dob,clientTypeId,genderId,clientClassificationId,isStaff,address, null, locale,dateFormat);
+    }
+    
+    public static ClientData emptyInstance(Long clientId) {
+    		return lookup(clientId, null, null, null);
+    }
+
+    private ClientData(Long legalFormId,Integer rowIndex, String fullname, String firstname,String lastname,String middlename,
+            LocalDate submittedOn,LocalDate activationDate,Boolean active,String externalId,Long officeId,
+            Long staffId,String mobileNo, LocalDate dob,Long clientTypeId,Long genderId,
+            Long clientClassificationId,Boolean isStaff, AddressData address, ClientNonPersonData clientNonPersonDetails,
+            String locale,String dateFormat ) {
+        this.rowIndex=rowIndex;
+        this.dateFormat=dateFormat;
+        this.locale= locale;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.middlename = middlename;
+        this.fullname = fullname;
+        this.activationDate=activationDate;
+        this.submittedOnDate=submittedOn;
+        this.active=active;
+        this.externalId=externalId;
+        this.officeId=officeId;
+        this.staffId=staffId;
+        this.legalFormId=legalFormId;
+        this.mobileNo=mobileNo;
+        this.dateOfBirth=dob;
+        this.clientTypeId=clientTypeId;
+        this.genderId=genderId;
+        this.clientClassificationId=clientClassificationId;
+        this.isStaff=isStaff;
+        this.address=address;
+        this.id = null;
+        this.accountNo = null;
+        this.status = null;
+        this.subStatus = null;
+        this.displayName = null;
+        this.gender = null;
+        this.clientType = null;
+        this.clientClassification = null;
+        this.officeName = null;
+        this.transferToOfficeId = null;
+        this.transferToOfficeName =null;
+        this.imageId = null;
+        this.imagePresent = null;
+        this.staffName = null;
+        this.timeline = null;
+        this.savingsProductId = null;
+        this.savingsProductName = null;
+        this.savingsAccountId =null;
+        this.legalForm = null;
+        this.groups = null;
+        this.officeOptions = null;
+        this.staffOptions = null;
+        this.narrations = null;
+        this.savingProductOptions = null;
+        this.savingAccountOptions = null;
+        this.genderOptions = null;
+        this.clientTypeOptions = null;
+        this.clientClassificationOptions = null;
+        this.clientNonPersonConstitutionOptions = null;
+        this.clientNonPersonMainBusinessLineOptions = null;
+        this.clientLegalFormOptions = null;
+        this.clientNonPersonDetails = null;
+        this.isAddressEnabled =null;
+        this.datatables = null;
+        this.familyMemberOptions=null;
+        this.emailAddress = null;
+    }
+
+
+
+    public Integer getRowIndex() {
+        return rowIndex;
+    }
+
+    public Long getSavingsAccountId() {
+        return savingsAccountId;
+    }
+
+    public Long getId(){return id;}
+
+    public String getOfficeName() {
+        return officeName;
+    }
 
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions,
             final Collection<StaffData> staffOptions, final Collection<CodeValueData> narrations,
