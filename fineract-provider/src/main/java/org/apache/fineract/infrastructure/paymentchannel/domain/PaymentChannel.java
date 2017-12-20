@@ -44,8 +44,8 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "channel_name", length = 150,  nullable = false, unique = true)
 	private String channelName;
-	@Column(name = "channel_endpoint_tag", length = 250, nullable = false, unique = true)
-	private String channelEndpointTag;
+	@Column(name = "channel_broker_endpoint", length = 250, nullable = false, unique = true)
+	private String channelBrokerEndpoint;
 	/**
      * A value from {@link PaymentChannelType}.
      */
@@ -62,11 +62,11 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	@Temporal(TemporalType.DATE)
 	private Date lastModified;
 
-	public PaymentChannel(String channelName, String channelEndpointTag, int channelType,
+	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType,
 			boolean isActive, String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
 		super();
 		this.channelName = channelName;
-		this.channelEndpointTag = channelEndpointTag;
+		this.channelBrokerEndpoint = channelBrokerEndpoint;
 		this.channelType = channelType;
 		this.isActive = isActive;
 		this.phoneNumberDefaultRegion = phoneNumberDefaultRegion;
@@ -77,14 +77,14 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	public static PaymentChannel fromJson(final JsonCommand command) {
 
 		final String channelName = command.stringValueOfParameterNamed("channelName");
-		final String channelEndpointTag = command.stringValueOfParameterNamed("channelEndpointTag");
+		final String channelBrokerEndpoint = command.stringValueOfParameterNamed("channelBrokerEndpoint");
 		final int channelType = command.integerValueOfParameterNamed("channelType");
 		final boolean isActive = command.booleanPrimitiveValueOfParameterNamed("isActive");
 		final String phoneNumberDefaultRegion = command.stringValueOfParameterNamed("phoneNumberDefaultRegion");
 		final LocalDate dateCreated = command.localDateValueOfParameterNamed("dateCreated");
 		final LocalDate lastModified = command.localDateValueOfParameterNamed("lastModified");
 		
-		return new PaymentChannel(channelName, channelEndpointTag, channelType, isActive, phoneNumberDefaultRegion,
+		return new PaymentChannel(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion,
 				dateCreated, lastModified);
 	}
 
@@ -96,12 +96,12 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		this.channelName = channelName;
 	}
 
-	public String getChannelEndpointTag() {
-		return channelEndpointTag;
+	public String getChannelBrokerEndpoint() {
+		return channelBrokerEndpoint;
 	}
 
-	public void setChannelEndpointTag(String channelEndpointTag) {
-		this.channelEndpointTag = channelEndpointTag;
+	public void setChannelBrokerEndpoint(String channelBrokerEndpoint) {
+		this.channelBrokerEndpoint = channelBrokerEndpoint;
 	}
 
 	public int getChannelType() {

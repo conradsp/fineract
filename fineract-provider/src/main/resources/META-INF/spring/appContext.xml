@@ -86,6 +86,7 @@
 	<jpa:repositories base-package="org.apache.fineract.adhocquery.domain" />
 	<jpa:repositories base-package="org.apache.fineract.notification.domain"/>
 	<jpa:repositories base-package="org.apache.fineract.infrastructure.campaigns.email.domain"/>
+	<jpa:repositories base-package="org.apache.fineract.infrastructure.paymentchannel.domain"/>
 	
 	
 	<import resource="infrastructure.xml" />

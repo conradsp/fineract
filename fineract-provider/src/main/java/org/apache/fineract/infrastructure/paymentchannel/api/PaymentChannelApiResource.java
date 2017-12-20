@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,8 +34,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.fineract.commands.domain.CommandWrapper;
+import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
@@ -54,19 +58,19 @@ public class PaymentChannelApiResource {
 	
 	private final String resourceNameForPermissions = "PAYMENT_CHANNEL";
 	private final PaymentChannelReadPlatformService paymentChannelReadPlatformService;
-	private final PlatformSecurityContext context;
+	private final PlatformSecurityContext securityContext;
 	private final DefaultToApiJsonSerializer<PaymentChannelData> toApiJsonSerializer;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
     @Autowired
-	public PaymentChannelApiResource(PlatformSecurityContext context,
+	public PaymentChannelApiResource(PlatformSecurityContext securityContext,
 			DefaultToApiJsonSerializer<PaymentChannelData> toApiJsonSerializer,
 			ApiRequestParameterHelper apiRequestParameterHelper,
 			PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			PaymentChannelReadPlatformService paymentChannelReadPlatformService) {
 		super();
-		this.context = context;
+		this.securityContext = securityContext;
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.apiRequestParameterHelper = apiRequestParameterHelper;
 		this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
@@ -78,7 +82,7 @@ public class PaymentChannelApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveAllPaymentChannels(@Context final UriInfo uriInfo) {
 
-        this.context.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
+        this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
         final Collection<PaymentChannelData> paymentChannelData = this.paymentChannelReadPlatformService.retrieveAllPaymentChannelData();
 
@@ -90,14 +94,24 @@ public class PaymentChannelApiResource {
     @Path("{paymentChannelId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    public String retrieveCharge(@PathParam("paymentChannelId") final Long paymentChannelId, @Context final UriInfo uriInfo) {
+    public String retrievePaymentChannel(@PathParam("paymentChannelId") final Long paymentChannelId, @Context final UriInfo uriInfo) {
 
-        this.context.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
+        this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 
         PaymentChannelData paymentChannelData = this.paymentChannelReadPlatformService.retrievePaymentChannelDataById(paymentChannelId);
         
         return this.toApiJsonSerializer.serialize(settings, paymentChannelData, this.PAYMENT_DATA_PARAMETERS);
+    }
+	
+	@POST
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public String createPaymentChannel(final String apiRequestBodyAsJson) {
+        this.securityContext.authenticatedUser();
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().createSmsCampaign().withJson(apiRequestBodyAsJson).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
     }
 }

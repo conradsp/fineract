@@ -28,7 +28,7 @@ import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelTy
 public class PaymentChannelData implements Comparable<PaymentChannelData>, Serializable{
 	private Long id;
 	private String channelName;
-	private String channelEndpointTag;
+	private String channelBrokerEndpoint;
 	/**
      * A value from {@link PaymentChannelType}.
      */
@@ -42,7 +42,7 @@ public class PaymentChannelData implements Comparable<PaymentChannelData>, Seria
 		super();
 		this.id = paymentChannel.getId();
 		this.channelName = paymentChannel.getChannelName();
-		this.channelEndpointTag = paymentChannel.getChannelEndpointTag();
+		this.channelBrokerEndpoint = paymentChannel.getChannelBrokerEndpoint();
 		this.channelType = paymentChannel.getChannelType();
 		this.isActive = paymentChannel.isActive();
 		this.phoneNumberDefaultRegion = paymentChannel.getPhoneNumberDefaultRegion();
@@ -65,11 +65,11 @@ public class PaymentChannelData implements Comparable<PaymentChannelData>, Seria
 	public void setChannelName(String channelName) {
 		this.channelName = channelName;
 	}
-	public String getChannelEndpointTag() {
-		return channelEndpointTag;
+	public String getChannelBrokerEndpoint() {
+		return channelBrokerEndpoint;
 	}
-	public void setChannelEndpointTag(String channelEndpointTag) {
-		this.channelEndpointTag = channelEndpointTag;
+	public void setChannelBrokerEndpoint(String channelBrokerEndpoint) {
+		this.channelBrokerEndpoint = channelBrokerEndpoint;
 	}
 	public int getChannelType() {
 		return channelType;

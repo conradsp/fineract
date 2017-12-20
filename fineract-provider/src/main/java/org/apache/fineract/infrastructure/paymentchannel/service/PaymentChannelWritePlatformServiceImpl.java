@@ -21,8 +21,22 @@ package org.apache.fineract.infrastructure.paymentchannel.service;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWritePlatformService{
+	
+	private final PlatformSecurityContext securityContext;
+	private final PaymentChannelRepository  paymentChannelRepository;
+	
+	@Autowired
+	public PaymentChannelWritePlatformServiceImpl(PlatformSecurityContext securityContext,
+			PaymentChannelRepository  paymentChannelRepository) {
+		super();
+		this.securityContext = securityContext;
+		this.paymentChannelRepository = paymentChannelRepository;
+	}
 
 	@Override
 	public CommandProcessingResult createPaymentChannel(JsonCommand command) {

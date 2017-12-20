@@ -19,6 +19,7 @@
 
 package org.apache.fineract.infrastructure.paymentchannel.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,13 +43,18 @@ public class PaymentChannelReadPlatformServiceImpl implements PaymentChannelRead
 	@Override
 	public Collection<PaymentChannelData> retrieveAllPaymentChannelData() {
 		List<PaymentChannel> paymentChannels = paymentChannelRepository.findAll();
-		return null;
+		
+		List<PaymentChannelData>  paymentChannelDataList = new ArrayList<>();
+		for (PaymentChannel paymentChannel : paymentChannels) {
+			paymentChannelDataList.add(new PaymentChannelData(paymentChannel));
+		}
+		return paymentChannelDataList;
 	}
 
 	@Override
 	public PaymentChannelData retrievePaymentChannelDataById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		PaymentChannel paymentChannel = paymentChannelRepository.findOne(id);
+		return new PaymentChannelData(paymentChannel);
 	}
 
 }
