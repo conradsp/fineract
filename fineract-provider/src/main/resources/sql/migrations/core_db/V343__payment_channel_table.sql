@@ -28,6 +28,6 @@ CREATE TABLE IF NOT EXISTS `payment_channel` (
   `last_modified` datetime DEFAULT NULL,
   `user_id` BIGINT(20) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `channel_name_UNIQUE` (`channel_name` ASC),
+  UNIQUE INDEX `unique_channel_name` (`channel_name` ASC),
   CONSTRAINT `fk_payment_channel_created_by_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`)
 )ENGINE = InnoDB;

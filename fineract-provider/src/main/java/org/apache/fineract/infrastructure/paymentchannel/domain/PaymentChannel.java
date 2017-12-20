@@ -38,8 +38,7 @@ import org.joda.time.LocalDate;
 
 @Entity
 @Table(name = "payment_channel", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name"),
-		@UniqueConstraint(columnNames = { "channel_endpoint_tag" }, name = "unique_channel_endpoint_tag") })
+		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name") })
 public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "channel_name", length = 150,  nullable = false, unique = true)
