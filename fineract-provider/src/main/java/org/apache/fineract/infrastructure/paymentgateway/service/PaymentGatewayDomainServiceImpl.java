@@ -18,20 +18,17 @@
  */
 package org.apache.fineract.infrastructure.paymentgateway.service;
 
-import org.apache.fineract.infrastructure.paymentgateway.domain.Payment;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants;
 import org.apache.fineract.portfolio.common.service.BusinessEventListner;
 import org.apache.fineract.portfolio.common.service.BusinessEventNotifierService;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.util.Date;
-import java.util.Map;
 
 @Service
 public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainService {
@@ -40,13 +37,9 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
     private final BusinessEventNotifierService businessEventNotifierService;
     
-    private final PaymentGateway paymentGateway;
-
     @Autowired
-    public PaymentGatewayDomainServiceImpl(final BusinessEventNotifierService businessEventNotifierService,
-    		final PaymentGateway paymentGateway) {
+    public PaymentGatewayDomainServiceImpl(final BusinessEventNotifierService businessEventNotifierService) {
         this.businessEventNotifierService = businessEventNotifierService;
-        this.paymentGateway = paymentGateway;
     }
 
     @PostConstruct
@@ -70,8 +63,6 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
-            //paymentGateway.processPayment("Processing payment test: OnLoanApproved");
-            logger.info("businessEventWasExecuted()...........");
         }
     }
 
@@ -80,24 +71,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
-            logger.info("businessEventWasExecuted()...........");
-            logger.info("businessEventEntity..........."+ businessEventEntity);
             
-            Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
-            logger.info("Not null..........."+(entity != null));
-            if (entity != null) {
-                Loan loan = (Loan) entity;
-                Payment payment =new Payment();
-                payment.setPaymentId(1l);
-                payment.setClientId(loan.getClientId());
-                payment.setEntityId(loan.getId());
-                payment.setEntityType("Loan");
-                payment.setAction("LoanDisbursal");
-                payment.setDateCreated(new Date());
-                
-                logger.info("Object..........."+payment.toString());
-                paymentGateway.processPaymentRequest(payment);
-            }
         }
     }
 
@@ -106,21 +80,6 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
-        	    logger.info("businessEventWasExecuted()...........");
-            logger.info("businessEventEntity..........."+ businessEventEntity);
-                
-            Object entity = businessEventEntity.get(BusinessEventNotificationConstants.BUSINESS_ENTITY.LOAN);
-            logger.info("Not null..........."+(entity != null));
-            if (entity != null) {
-                Loan loan = (Loan) entity;
-                Payment payment =new Payment();
-                payment.setPaymentId(1l);
-                payment.setClientId(loan.getClientId());
-                payment.setEntityId(loan.getId());
-                payment.setEntityType("Loan");
-                payment.setAction("UndoLoanDisbursal");
-                paymentGateway.processPaymentRequest(payment);
-            }
         }
     }
 
@@ -129,7 +88,6 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
         @Override
         public void businessEventWasExecuted(Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
             //TODO handle businessEventWasExecuted
-            logger.info("businessEventWasExecuted()...........");
         }
     }
 }
