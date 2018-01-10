@@ -158,7 +158,10 @@ rat {
 	//Docker files
 	'**/DockerfileBase',
 	'**/Dockerfile',
+	'**/BaseDockerFile',
     '**/docker-compose.yml',
+    '**/server.xml',
+    '**/entrypoint.sh',
 	]
 }
 

@@ -31,7 +31,10 @@ services:
 
    fineract:
      container_name: fineract_server
-     image: aomeri/fineract:latest
+     build: .
+     volumes:
+       - ./server.xml:/usr/local/tomcat/conf/server.xml
+       - ./entrypoint.sh:/entrypoint.sh
      ports:
        - 8443:443
      restart: always

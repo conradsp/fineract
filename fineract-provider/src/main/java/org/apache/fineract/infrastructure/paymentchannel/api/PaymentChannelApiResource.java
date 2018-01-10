@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@Path("/paymentchannel")
+@Path("/paymentchannels")
 @Component
 @Scope("singleton")
 public class PaymentChannelApiResource {
