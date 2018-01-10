@@ -3132,4 +3132,28 @@ public class CommandWrapperBuilder {
         this.href = "/twofactor/configure";
         return this;
     }
+
+    public CommandWrapperBuilder createPaymentChannel() {
+        this.actionName = "CREATE";
+        this.entityName = "PAYMENTCHANNEL";
+        this.entityId = null;
+        this.href = "/paymentchannel";
+        return this;
+    }
+
+    public CommandWrapperBuilder updatePaymentChannel(final Long resourceId) {
+        this.actionName = "UPDATE";
+        this.entityName = "PAYMENTCHANNEL";
+        this.entityId = resourceId;
+        this.href = "/paymentchannel/" + resourceId;
+        return this;
+    }
+
+    public CommandWrapperBuilder deletePaymentChannel(final Long resourceId) {
+        this.actionName = "DELETE";
+        this.entityName = "PAYMENTCHANNEL";
+        this.entityId = resourceId;
+        this.href = "/paymentchannel/" + resourceId;
+        return this;
+    }
 }

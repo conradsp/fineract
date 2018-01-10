@@ -24,9 +24,9 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 
 public interface PaymentChannelWritePlatformService {
 	
-	CommandProcessingResult createPaymentChannel(JsonCommand command);
+	CommandProcessingResult create(JsonCommand command);
 
-    CommandProcessingResult updatePaymentChannel(Long chargeId, JsonCommand command);
+    CommandProcessingResult update(Long resourceId, JsonCommand command);
 
-    CommandProcessingResult deletePaymentChannel(Long chargeId);
+    CommandProcessingResult delete(Long resourceId);
 }

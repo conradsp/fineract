@@ -20,34 +20,29 @@
 package org.apache.fineract.infrastructure.paymentchannel.domain;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
-import org.apache.fineract.organisation.office.domain.Office;
-import org.apache.fineract.portfolio.client.domain.ClientStatus;
+import org.apache.fineract.infrastructure.sms.SmsApiConstants;
 import org.joda.time.LocalDate;
 
 @Entity
 @Table(name = "payment_channel", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name") })
+		@UniqueConstraint(columnNames = {"channel_name"}, name = "unique_channel_name")})
 public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
-	@Column(name = "channel_name", length = 150,  nullable = false, unique = true)
+	@Column(name = "channel_name", length = 150, nullable = false, unique = true)
 	private String channelName;
 	@Column(name = "channel_broker_endpoint", length = 250, nullable = false, unique = true)
 	private String channelBrokerEndpoint;
 	/**
-     * A value from {@link PaymentChannelType}.
-     */
+	 * A value from {@link PaymentChannelType}.
+	 */
 	@Column(name = "channel_type", nullable = false)
 	private int channelType;
 	@Column(name = "is_active", nullable = false)
@@ -61,8 +56,11 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	@Temporal(TemporalType.DATE)
 	private Date lastModified;
 
-	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType,
-			boolean isActive, String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
+	public PaymentChannel() {
+	}
+
+	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType, boolean isActive,
+			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
 		super();
 		this.channelName = channelName;
 		this.channelBrokerEndpoint = channelBrokerEndpoint;
@@ -82,9 +80,47 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		final String phoneNumberDefaultRegion = command.stringValueOfParameterNamed("phoneNumberDefaultRegion");
 		final LocalDate dateCreated = command.localDateValueOfParameterNamed("dateCreated");
 		final LocalDate lastModified = command.localDateValueOfParameterNamed("lastModified");
-		
+
 		return new PaymentChannel(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion,
 				dateCreated, lastModified);
+	}
+
+	public Map<String, Object> update(final JsonCommand command) {
+
+		final Map<String, Object> actualChanges = new LinkedHashMap<>(1);
+
+		final String channelNameParamName = "channelName";
+		if (command.isChangeInStringParameterNamed(channelNameParamName, this.channelName)) {
+			final String newValue = command.stringValueOfParameterNamed(channelNameParamName);
+			actualChanges.put(channelNameParamName, newValue);
+			this.channelName = newValue;
+		}
+		final String channelBrokerEndpointParamName = "channelBrokerEndpoint";
+		if (command.isChangeInStringParameterNamed(channelBrokerEndpointParamName, this.channelBrokerEndpoint)) {
+			final String newValue = command.stringValueOfParameterNamed(channelBrokerEndpointParamName);
+			actualChanges.put(channelBrokerEndpointParamName, newValue);
+			this.channelBrokerEndpoint = newValue;
+		}
+		final String channelTypeParamName = "channelType";
+		if (command.isChangeInIntegerParameterNamed(channelTypeParamName, this.channelType)) {
+			final int newValue = command.integerValueOfParameterNamed(channelTypeParamName);
+			actualChanges.put(channelTypeParamName, newValue);
+			this.channelType = newValue;
+		}
+		final String isActiveParamName = "isActive";
+		if (command.isChangeInBooleanParameterNamed(isActiveParamName, this.isActive)) {
+			final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(isActiveParamName);
+			actualChanges.put(isActiveParamName, newValue);
+			this.isActive = newValue;
+		}
+		final String phoneNumberDefaultRegionParamName = "phoneNumberDefaultRegion";
+		if (command.isChangeInStringParameterNamed(phoneNumberDefaultRegionParamName, this.phoneNumberDefaultRegion)) {
+			final String newValue = command.stringValueOfParameterNamed(phoneNumberDefaultRegionParamName);
+			actualChanges.put(phoneNumberDefaultRegionParamName, newValue);
+			this.phoneNumberDefaultRegion = newValue;
+		}
+
+		return actualChanges;
 	}
 
 	public String getChannelName() {

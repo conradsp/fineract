@@ -66,6 +66,7 @@ dependencies {
                 //[group: 'net.sourceforge.javacsv', name: 'javacsv', version: '2.0'],
                 [group: 'org.apache.commons', name: 'commons-email', version: '1.3.3'],
                 [group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'],
+                [group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'],
 
                 // no slf4j & logback here (anymore), as spring-boot-starter-logging already brings this now, better assembled (log4j-over-slf4j was originally forgotten here)
 

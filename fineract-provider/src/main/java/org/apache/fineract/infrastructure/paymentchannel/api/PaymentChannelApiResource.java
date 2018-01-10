@@ -24,12 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -52,18 +47,19 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class PaymentChannelApiResource {
-	
-	 private final Set<String> PAYMENT_DATA_PARAMETERS = new HashSet<>(Arrays.asList("id", "channelName", "channelEndpointTag", 
-			 "channelType", "isActive", "phoneNumberDefaultRegion", "dateCreated", "lastModified"));
-	
+
+	private final Set<String> PAYMENT_DATA_PARAMETERS = new HashSet<>(
+			Arrays.asList("id", "channelName", "channelEndpointTag", "channelType", "isActive",
+					"phoneNumberDefaultRegion", "dateCreated", "lastModified"));
+
 	private final String resourceNameForPermissions = "PAYMENT_CHANNEL";
 	private final PaymentChannelReadPlatformService paymentChannelReadPlatformService;
 	private final PlatformSecurityContext securityContext;
 	private final DefaultToApiJsonSerializer<PaymentChannelData> toApiJsonSerializer;
-    private final ApiRequestParameterHelper apiRequestParameterHelper;
-    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
-    @Autowired
+	@Autowired
 	public PaymentChannelApiResource(PlatformSecurityContext securityContext,
 			DefaultToApiJsonSerializer<PaymentChannelData> toApiJsonSerializer,
 			ApiRequestParameterHelper apiRequestParameterHelper,
@@ -78,40 +74,68 @@ public class PaymentChannelApiResource {
 	}
 
 	@GET
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String retrieveAllPaymentChannels(@Context final UriInfo uriInfo) {
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retrieveAllPaymentChannels(@Context final UriInfo uriInfo) {
 
-        this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
+		this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
-        final Collection<PaymentChannelData> paymentChannelData = this.paymentChannelReadPlatformService.retrieveAllPaymentChannelData();
+		final Collection<PaymentChannelData> paymentChannelData = this.paymentChannelReadPlatformService
+				.retrieveAllPaymentChannelData();
 
-        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.toApiJsonSerializer.serialize(settings, paymentChannelData, this.PAYMENT_DATA_PARAMETERS);
-    }
-	
+		final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper
+				.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, paymentChannelData, this.PAYMENT_DATA_PARAMETERS);
+	}
+
 	@GET
-    @Path("{paymentChannelId}")
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String retrievePaymentChannel(@PathParam("paymentChannelId") final Long paymentChannelId, @Context final UriInfo uriInfo) {
+	@Path("{paymentChannelId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retrievePaymentChannel(@PathParam("paymentChannelId") final Long paymentChannelId,
+			@Context final UriInfo uriInfo) {
 
-        this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
+		this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
-        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper
+				.process(uriInfo.getQueryParameters());
 
-        PaymentChannelData paymentChannelData = this.paymentChannelReadPlatformService.retrievePaymentChannelDataById(paymentChannelId);
-        
-        return this.toApiJsonSerializer.serialize(settings, paymentChannelData, this.PAYMENT_DATA_PARAMETERS);
-    }
-	
+		PaymentChannelData paymentChannelData = this.paymentChannelReadPlatformService
+				.retrievePaymentChannelDataById(paymentChannelId);
+
+		return this.toApiJsonSerializer.serialize(settings, paymentChannelData, this.PAYMENT_DATA_PARAMETERS);
+	}
+
 	@POST
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String createPaymentChannel(final String apiRequestBodyAsJson) {
-        this.securityContext.authenticatedUser();
-        final CommandWrapper commandRequest = new CommandWrapperBuilder().createSmsCampaign().withJson(apiRequestBodyAsJson).build();
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String createPaymentChannel(final String apiRequestBodyAsJson) {
+		this.securityContext.authenticatedUser();
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentChannel()
+				.withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializer.serialize(result);
+	}
+
+    @PUT
+    @Path("{resourceId}")
+    public String update(@PathParam("resourceId") final Long resourceId, final String apiRequestBodyAsJson) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentChannel(resourceId).withJson(apiRequestBodyAsJson).build();
+
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+        return this.toApiJsonSerializer.serialize(result);
+    }
+
+    @DELETE
+    @Path("{resourceId}")
+    public String delete(@PathParam("resourceId") final Long resourceId) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePaymentChannel(resourceId).build();
+
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
         return this.toApiJsonSerializer.serialize(result);
     }
 }
