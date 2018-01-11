@@ -119,6 +119,8 @@ public class PaymentChannelApiResource {
 
     @PUT
     @Path("{resourceId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
     public String update(@PathParam("resourceId") final Long resourceId, final String apiRequestBodyAsJson) {
 
         final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentChannel(resourceId).withJson(apiRequestBodyAsJson).build();
