@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
+       http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <context:property-placeholder/>
+
+    <int:channel id="toAMQChannel"/>
+
+    <bean id="channelAMQConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="${channel.brokerURL}"/>
+            </bean>
+        </property>
+    </bean>
+
+    <int-jms:outbound-channel-adapter
+            id="outBoundGateway"
+            connection-factory="channelAMQConnectionFactory"
+            channel="toAMQChannel"
+            destination="requestQueue"/>
+
+    <bean id="requestQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="${channel.outboundQueueName}"/>
+    </bean>
+</beans>

@@ -25,10 +25,9 @@ import java.util.Map;
 
 import javax.persistence.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
-import org.apache.fineract.infrastructure.sms.SmsApiConstants;
+import org.apache.fineract.useradministration.domain.AppUser;
 import org.joda.time.LocalDate;
 
 @Entity
@@ -55,6 +54,9 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	@Column(name = "last_modified", nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date lastModified;
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = true)
+	private AppUser createdBy;
 
 	public PaymentChannel() {
 	}
@@ -68,7 +70,14 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		this.isActive = isActive;
 		this.phoneNumberDefaultRegion = phoneNumberDefaultRegion;
 		this.dateCreated = dateCreated.toDateTimeAtStartOfDay().toDate();
-		this.lastModified = lastModified.toDateTimeAtStartOfDay().toDate();
+		this.createdBy = createdBy;
+	}
+
+	public PaymentChannel(final AppUser currentUser, String channelName, String channelBrokerEndpoint, int channelType,
+			boolean isActive, String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
+		this(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion, dateCreated,
+				lastModified);
+		this.createdBy = currentUser;
 	}
 
 	public static PaymentChannel fromJson(final JsonCommand command) {
@@ -83,6 +92,16 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 		return new PaymentChannel(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion,
 				dateCreated, lastModified);
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		this.lastModified = new Date();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.lastModified = new Date();
 	}
 
 	public Map<String, Object> update(final JsonCommand command) {
@@ -179,4 +198,11 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		this.lastModified = lastModified;
 	}
 
+	public AppUser getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(AppUser createdBy) {
+		this.createdBy = createdBy;
+	}
 }

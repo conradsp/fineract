@@ -26,7 +26,9 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.sms.service.SmsWritePlatformServiceJpaRepositoryImpl;
+import org.apache.fineract.useradministration.domain.AppUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +40,21 @@ public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWri
 
 	private final static Logger logger = LoggerFactory.getLogger(SmsWritePlatformServiceJpaRepositoryImpl.class);
 	private final PaymentChannelRepository paymentChannelRepository;
+	private final PlatformSecurityContext securityContext;
 
 	@Autowired
-	public PaymentChannelWritePlatformServiceImpl(PaymentChannelRepository paymentChannelRepository) {
+	public PaymentChannelWritePlatformServiceImpl(PaymentChannelRepository paymentChannelRepository,
+			PlatformSecurityContext securityContext) {
 		super();
 		this.paymentChannelRepository = paymentChannelRepository;
+		this.securityContext = securityContext;
 	}
 
 	@Override
 	public CommandProcessingResult create(JsonCommand command) {
 		try {
 			PaymentChannel paymentChannel = PaymentChannel.fromJson(command);
+			paymentChannel.setCreatedBy(this.securityContext.authenticatedUser());
 			paymentChannel = paymentChannelRepository.save(paymentChannel);
 			return new CommandProcessingResultBuilder() //
 					.withCommandId(command.commandId()) //

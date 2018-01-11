@@ -39,6 +39,7 @@ import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSer
 import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
 import org.apache.fineract.infrastructure.paymentchannel.service.PaymentChannelReadPlatformService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,7 @@ public class PaymentChannelApiResource {
 			Arrays.asList("id", "channelName", "channelEndpointTag", "channelType", "isActive",
 					"phoneNumberDefaultRegion", "dateCreated", "lastModified"));
 
-	private final String resourceNameForPermissions = "PAYMENT_CHANNEL";
+	private final String resourceNameForPermissions = "PAYMENTCHANNEL";
 	private final PaymentChannelReadPlatformService paymentChannelReadPlatformService;
 	private final PlatformSecurityContext securityContext;
 	private final DefaultToApiJsonSerializer<PaymentChannelData> toApiJsonSerializer;
@@ -110,7 +111,6 @@ public class PaymentChannelApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String createPaymentChannel(final String apiRequestBodyAsJson) {
-		this.securityContext.authenticatedUser();
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentChannel()
 				.withJson(apiRequestBodyAsJson).build();
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);

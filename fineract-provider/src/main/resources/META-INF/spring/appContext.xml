@@ -43,7 +43,7 @@
 										  org.apache.fineract.commands.service.*,
 										  org.apache.fineract.commands.*,
 										  org.apache.fineract.audit.*,
-										 org.apache.fineract.infrastructure.creditbureau.*,
+										  org.apache.fineract.infrastructure.creditbureau.*,
 										  org.apache.fineract.infrastructure.*,
 										  org.apache.fineract.scheduledjobs.*,
 										  org.apache.fineract.organisation.*,
@@ -58,6 +58,7 @@
 										  org.apache.fineract.useradministration.*,
 										  org.apache.fineract.batch,
 										  org.apache.fineract.adhocquery.*,
+										  org.apache.fineract.infrastructure.paymentchannel.*,
 										  org.apache.fineract.infrastructure.campaigns.**">
 		<context:exclude-filter expression="org.springframework.stereotype.Controller"
 			type="annotation" />
@@ -102,4 +103,5 @@
 	</bean>
 
 	<import resource="spmContext.xml"/>
+    <import resource="paymentIntegrationContext.xml"/>
 </beans>
