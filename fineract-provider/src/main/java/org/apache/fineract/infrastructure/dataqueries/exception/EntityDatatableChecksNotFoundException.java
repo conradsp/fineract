@@ -27,6 +27,6 @@ public class EntityDatatableChecksNotFoundException extends AbstractPlatformReso
 
 	public EntityDatatableChecksNotFoundException(final Long id) {
 		super("error.msg.entity.datatable.check.not.found",
-				"PaymentEntity datatable check with identifier " + id + " does not exist", id);
+				"Entity datatable check with identifier " + id + " does not exist", id);
 	}
 }

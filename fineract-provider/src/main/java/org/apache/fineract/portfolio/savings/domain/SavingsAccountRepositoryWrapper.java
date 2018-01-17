@@ -94,7 +94,7 @@ public class SavingsAccountRepositoryWrapper {
         return this.repository.findByGroupId(groupId) ;
     }
 
-    //Root PaymentEntity is enough
+    //Root Entity is enough
     public SavingsAccount findNonClosedAccountByAccountNumber(@Param("accountNumber") String accountNumber) {
         return this.repository.findNonClosedAccountByAccountNumber(accountNumber) ;
     }

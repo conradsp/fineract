@@ -208,7 +208,7 @@ public class BulkImportWorkbookPopulatorServiceImpl implements BulkImportWorkboo
 			return buildResponse(workbook, entityType);
 		}else {
 			throw new GeneralPlatformDomainRuleException("error.msg.given.entity.type.null",
-					"Given PaymentEntity type is null");
+					"Given Entity type is null");
 		}
 	}
 

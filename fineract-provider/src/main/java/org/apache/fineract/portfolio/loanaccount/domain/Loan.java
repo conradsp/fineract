@@ -392,9 +392,6 @@ public class Loan extends AbstractPersistableCustom<Long> {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "loan", optional = true, orphanRemoval = true, fetch=FetchType.EAGER)
     private LoanTopupDetails loanTopupDetails;
 
-    @Transient
-    private PaymentDetail paymentDetail;
-
     public static Loan newIndividualLoanApplication(final String accountNo, final Client client, final Integer loanType,
             final LoanProduct loanProduct, final Fund fund, final Staff officer, final CodeValue loanPurpose,
             final LoanTransactionProcessingStrategy transactionProcessingStrategy,
@@ -6526,12 +6523,4 @@ public class Loan extends AbstractPersistableCustom<Long> {
     }
     
     public boolean isIndividualLoan(){return AccountType.fromInt(this.loanType).isIndividualAccount();}
-
-    public PaymentDetail getPaymentDetail() {
-        return paymentDetail;
-    }
-
-    public void setPaymentDetail(PaymentDetail paymentDetail) {
-        this.paymentDetail = paymentDetail;
-    }
 }

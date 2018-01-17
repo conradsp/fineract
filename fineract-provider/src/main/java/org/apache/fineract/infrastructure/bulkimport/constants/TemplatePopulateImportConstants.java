@@ -109,7 +109,7 @@ public class TemplatePopulateImportConstants {
     public static final String SATURDAY ="Sat";
     public static final String SUNDAY ="Sun";
 
-    //PaymentEntity types
+    //Entity types
     public static final String CENTER_ENTITY_TYPE="CENTER";
     public static final String OFFICE_ENTITY_TYPE="OFFICE";
     public static final String STAFF_ENTITY_TYPE="STAFF";

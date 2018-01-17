@@ -18,7 +18,7 @@
 --
 
 INSERT INTO `m_code` (`code_name`, `is_system_defined`) VALUES
-('PaymentDirection',1);
+('PaymentType',1);
 
 /*Update payment detail to add foreign key relationship to user defined Code Value*/
 update m_loan_transaction set payment_detail_id=null;

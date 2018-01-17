@@ -27,7 +27,7 @@ public class EntityDatatableCheckNotAllowException extends AbstractPlatformResou
 
 	public EntityDatatableCheckNotAllowException(final String entityName) {
 		super("error.msg.entity.datatable.check.is.not.allowed",
-				"PaymentEntity Datatable check is not allow without a loan product id to :entity,"
+				"Entity Datatable check is not allow without a loan product id to :entity,"
 						+ " because there is already a check attached to the same entity with a loan product id",
 				entityName);
 	}

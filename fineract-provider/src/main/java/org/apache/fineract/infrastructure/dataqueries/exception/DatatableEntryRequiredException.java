@@ -32,7 +32,7 @@ public class DatatableEntryRequiredException extends AbstractPlatformDomainRuleE
 
     public DatatableEntryRequiredException(String datatableName, Long appTableId) {
         super("error.msg.entry.cannot.be.deleted.datatable." + datatableName + ".attached.to.entity.datatable.check",
-                "The entry cannot be deleted, due to datatable " + datatableName + " is attached to an PaymentEntity-Datatable check",
+                "The entry cannot be deleted, due to datatable " + datatableName + " is attached to an Entity-Datatable check",
                 datatableName, appTableId);
     }
 }

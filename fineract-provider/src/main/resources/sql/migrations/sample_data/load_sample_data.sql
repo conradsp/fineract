@@ -1306,7 +1306,7 @@ INSERT INTO `m_code` (`id`, `code_name`, `is_system_defined`) VALUES
 	(18, 'ClientSubStatus', 1),
 	(19, 'ClientRejectReason', 1),
 	(20, 'ClientWithdrawReason', 1),
-	(21, 'PaymentEntity to PaymentEntity Access Types', 1),
+	(21, 'Entity to Entity Access Types', 1),
 	(22, 'CenterClosureReason', 1),
 	(23, 'LoanRescheduleReason', 1),
 	(24, 'Constitution', 1),

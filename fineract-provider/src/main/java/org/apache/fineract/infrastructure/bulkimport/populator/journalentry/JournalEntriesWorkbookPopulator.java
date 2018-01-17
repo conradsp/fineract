@@ -128,7 +128,7 @@ public class JournalEntriesWorkbookPopulator extends AbstractWorkbookPopulator {
 			DataValidationConstraint currencyCodeConstraint = validationHelper
 					.createFormulaListConstraint("Currency");
 			DataValidationConstraint paymentTypeConstraint = validationHelper
-					.createFormulaListConstraint("PaymentDirection");
+					.createFormulaListConstraint("PaymentType");
 
 			DataValidationConstraint glaccountConstraint = validationHelper
 					.createFormulaListConstraint("GlAccounts");
@@ -163,7 +163,7 @@ public class JournalEntriesWorkbookPopulator extends AbstractWorkbookPopulator {
 				+ (officeNames.size() + 1));
 		// Payment Type Name
 		Name paymentTypeGroup = addJournalEntriesWorkbook.createName();
-		paymentTypeGroup.setNameName("PaymentDirection");
+		paymentTypeGroup.setNameName("PaymentType");
 		paymentTypeGroup.setRefersToFormula(TemplatePopulateImportConstants.EXTRAS_SHEET_NAME+"!$D$2:$D$"
 				+ (extrasSheetPopulator.getPaymentTypesSize() + 1));
 		// Currency Type Name
