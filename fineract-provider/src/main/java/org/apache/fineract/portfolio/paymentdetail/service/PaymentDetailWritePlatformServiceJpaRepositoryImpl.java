@@ -21,6 +21,8 @@ package org.apache.fineract.portfolio.paymentdetail.service;
 import java.util.Map;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
 import org.apache.fineract.portfolio.paymentdetail.PaymentDetailConstants;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetailRepository;
@@ -33,39 +35,52 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentDetailWritePlatformServiceJpaRepositoryImpl implements PaymentDetailWritePlatformService {
 
-    private final PaymentDetailRepository paymentDetailRepository;
-    // private final CodeValueRepositoryWrapper codeValueRepositoryWrapper;
-    private final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper;
+	private final PaymentDetailRepository paymentDetailRepository;
+	// private final CodeValueRepositoryWrapper codeValueRepositoryWrapper;
+	private final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper;
+	private final PaymentChannelRepository paymentChannelRepository;
 
-    @Autowired
-    public PaymentDetailWritePlatformServiceJpaRepositoryImpl(final PaymentDetailRepository paymentDetailRepository,
-            final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper) {
-        this.paymentDetailRepository = paymentDetailRepository;
-        this.paymentTyperepositoryWrapper = paymentTyperepositoryWrapper;
-    }
+	@Autowired
+	public PaymentDetailWritePlatformServiceJpaRepositoryImpl(final PaymentDetailRepository paymentDetailRepository,
+			final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper,
+			final PaymentChannelRepository paymentChannelRepository) {
+		this.paymentDetailRepository = paymentDetailRepository;
+		this.paymentTyperepositoryWrapper = paymentTyperepositoryWrapper;
+		this.paymentChannelRepository = paymentChannelRepository;
+	}
 
-    @Override
-    public PaymentDetail createPaymentDetail(final JsonCommand command, final Map<String, Object> changes) {
-        final Long paymentTypeId = command.longValueOfParameterNamed(PaymentDetailConstants.paymentTypeParamName);
-        if (paymentTypeId == null) { return null; }
+	@Override
+	public PaymentDetail createPaymentDetail(final JsonCommand command, final Map<String, Object> changes) {
+		final Long paymentTypeId = command.longValueOfParameterNamed(PaymentDetailConstants.paymentTypeParamName);
+		if (paymentTypeId == null) {
+			return null;
+		}
+		final Long paymentChannelId = command.longValueOfParameterNamed(PaymentDetailConstants.paymentChannelParamName);
+        if (paymentChannelId == null) {
+            return null;
+        }
 
-        final PaymentType paymentType = this.paymentTyperepositoryWrapper.findOneWithNotFoundDetection(paymentTypeId);
-        final PaymentDetail paymentDetail = PaymentDetail.generatePaymentDetail(paymentType, command, changes);
-        return paymentDetail;
+		final PaymentType paymentType = this.paymentTyperepositoryWrapper.findOneWithNotFoundDetection(paymentTypeId);
+		final PaymentDetail paymentDetail = PaymentDetail.generatePaymentDetail(paymentType, command, changes);
+        final PaymentChannel paymentChannel = this.paymentChannelRepository.findOne(paymentChannelId);
+        paymentDetail.setPaymentChannel(paymentChannel);
+		return paymentDetail;
 
-    }
+	}
 
-    @Override
-    @Transactional
-    public PaymentDetail persistPaymentDetail(final PaymentDetail paymentDetail) {
-        return this.paymentDetailRepository.save(paymentDetail);
-    }
+	@Override
+	@Transactional
+	public PaymentDetail persistPaymentDetail(final PaymentDetail paymentDetail) {
+		return this.paymentDetailRepository.save(paymentDetail);
+	}
 
-    @Override
-    @Transactional
-    public PaymentDetail createAndPersistPaymentDetail(final JsonCommand command, final Map<String, Object> changes) {
-        final PaymentDetail paymentDetail = createPaymentDetail(command, changes);
-        if (paymentDetail != null) { return persistPaymentDetail(paymentDetail); }
-        return paymentDetail;
-    }
+	@Override
+	@Transactional
+	public PaymentDetail createAndPersistPaymentDetail(final JsonCommand command, final Map<String, Object> changes) {
+		final PaymentDetail paymentDetail = createPaymentDetail(command, changes);
+		if (paymentDetail != null) {
+			return persistPaymentDetail(paymentDetail);
+		}
+		return paymentDetail;
+	}
 }

@@ -16,18 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.documentmanagement.exception;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+package org.apache.fineract.infrastructure.payment.domain;
 
-/**
- * A {@link RuntimeException} thrown when document management functionality is
- * invoked for invalid PaymentEntity Types
- */
-public class InvalidEntityTypeForDocumentManagementException extends AbstractPlatformResourceNotFoundException {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-    public InvalidEntityTypeForDocumentManagementException(final String entityType) {
-        super("error.documentmanagement.entitytype.invalid", "Document Management is not support for the PaymentEntity Type: " + entityType,
-                entityType);
-    }
+public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpecificationExecutor<Payment> {
+
 }

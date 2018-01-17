@@ -16,18 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.documentmanagement.exception;
+package org.apache.fineract.infrastructure.paymentgateway.util;
 
-import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.hashids.Hashids;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-/**
- * A {@link RuntimeException} thrown when document management functionality is
- * invoked for invalid PaymentEntity Types
- */
-public class InvalidEntityTypeForDocumentManagementException extends AbstractPlatformResourceNotFoundException {
+@Component
+public class HashUtil {
+	@Value("${app.hashSalt}")
+	private String hashSalt;
 
-    public InvalidEntityTypeForDocumentManagementException(final String entityType) {
-        super("error.documentmanagement.entitytype.invalid", "Document Management is not support for the PaymentEntity Type: " + entityType,
-                entityType);
-    }
+	private Hashids hashids;
+
+	public HashUtil() {
+		hashids = new Hashids(hashSalt);
+	}
+
+	public String hashEncodeId(Long id) {
+		return hashids.encode(id);
+	}
+
+	public long hashDecodeId(String hash) {
+		return hashids.decode(hash)[0];
+	}
 }

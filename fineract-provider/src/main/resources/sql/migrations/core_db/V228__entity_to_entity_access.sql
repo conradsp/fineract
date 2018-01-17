@@ -17,9 +17,9 @@
 -- under the License.
 --
 
--- Code required to store various types of Entity to Entity Access types that Mifos Supports
+-- Code required to store various types of PaymentEntity to PaymentEntity Access types that Mifos Supports
 insert into m_code (code_name, is_system_defined)
-values ('Entity to Entity Access Types', 1);
+values ('PaymentEntity to PaymentEntity Access Types', 1);
 
 -- Three Code Values required to support:
 -- a) Loan Products restricted to specific Offices
@@ -27,17 +27,17 @@ values ('Entity to Entity Access Types', 1);
 -- c) Fees/Charges restricted to specific Offices
 insert into m_code_value (code_id, code_value, order_position)
 values (
-	(select id from m_code where code_name = 'Entity to Entity Access Types'),
+	(select id from m_code where code_name = 'PaymentEntity to PaymentEntity Access Types'),
 	'Office Access to Loan Products',  0);
 
 insert into m_code_value (code_id, code_value, order_position)
 values (
-	(select id from m_code where code_name = 'Entity to Entity Access Types'),
+	(select id from m_code where code_name = 'PaymentEntity to PaymentEntity Access Types'),
 	'Office Access to Savings Products',  0);
 	
 insert into m_code_value (code_id, code_value, order_position)
 values (
-	(select id from m_code where code_name = 'Entity to Entity Access Types'),
+	(select id from m_code where code_name = 'PaymentEntity to PaymentEntity Access Types'),
 	'Office Access to Fees/Charges',  0);
 
 -- Table where the actual restrictions will be stored
@@ -54,7 +54,7 @@ CREATE TABLE `m_entity_to_entity_access` (
 	CONSTRAINT `FK_access_type_code_m_code_value` FOREIGN KEY (`access_type_code_value_id`) REFERENCES `m_code_value` (`id`)
 );
 
--- Global Configurations for Entity access restrictions
+-- Global Configurations for PaymentEntity access restrictions
 insert into c_configuration (name, value, enabled, description)
 	values ('office-specific-products-enabled', 0, 0,
 	'Whether products and fees should be office specific or not? This property should NOT be changed once Mifos is Live.');

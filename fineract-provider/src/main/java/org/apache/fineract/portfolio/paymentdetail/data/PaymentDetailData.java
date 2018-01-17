@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.paymentdetail.data;
 
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
 
 /**
@@ -39,6 +40,8 @@ public class PaymentDetailData {
     private final String receiptNumber;
     @SuppressWarnings("unused")
     private final String bankNumber;
+    @SuppressWarnings("unused")
+    private PaymentChannel paymentChannel;
 
     public PaymentDetailData(final Long id, final PaymentTypeData paymentType, final String accountNumber, final String checkNumber,
             final String routingCode, final String receiptNumber, final String bankNumber) {
@@ -50,7 +53,12 @@ public class PaymentDetailData {
         this.receiptNumber = receiptNumber;
         this.bankNumber = bankNumber;
     }
-    
-    
+
+    public PaymentDetailData(final Long id, final PaymentTypeData paymentType, final String accountNumber, final String checkNumber,
+                             final String routingCode, final String receiptNumber, final String bankNumber,
+                             final PaymentChannel paymentChannel) {
+        this(id, paymentType, accountNumber, checkNumber,routingCode, receiptNumber, bankNumber);
+        this.paymentChannel = paymentChannel;
+    }
 
 }

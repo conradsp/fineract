@@ -40,6 +40,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
@@ -795,5 +796,62 @@ public class LoanTransaction extends AbstractPersistableCustom<Long> {
         return this.isNotReversed()
                 && !(this.isDisbursement() || this.isAccrual() || this.isRepaymentAtDisbursement() || this.isNonMonetaryTransaction() || this
                         .isIncomePosting());
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("loan", loan)
+                .append("office", office)
+                .append("paymentDetail", paymentDetail)
+                .append("typeOf", typeOf)
+                .append("dateOf", dateOf)
+                .append("submittedOnDate", submittedOnDate)
+                .append("amount", amount)
+                .append("principalPortion", principalPortion)
+                .append("interestPortion", interestPortion)
+                .append("feeChargesPortion", feeChargesPortion)
+                .append("penaltyChargesPortion", penaltyChargesPortion)
+                .append("overPaymentPortion", overPaymentPortion)
+                .append("unrecognizedIncomePortion", unrecognizedIncomePortion)
+                .append("reversed", reversed)
+                .append("externalId", externalId)
+                .append("createdDate", createdDate)
+                .append("appUser", appUser)
+                .append("loanChargesPaid", loanChargesPaid)
+                .append("outstandingLoanBalance", outstandingLoanBalance)
+                .append("manuallyAdjustedOrReversed", manuallyAdjustedOrReversed)
+                .append("loanTransactionToRepaymentScheduleMappings", loanTransactionToRepaymentScheduleMappings)
+                .append("transactionDate", getTransactionDate())
+                .append("notReversed", isNotReversed())
+                .append("anyTypeOfRepayment", isAnyTypeOfRepayment())
+                .append("repayment", isRepayment())
+                .append("notRepayment", isNotRepayment())
+                .append("incomePosting", isIncomePosting())
+                .append("notIncomePosting", isNotIncomePosting())
+                .append("disbursement", isDisbursement())
+                .append("repaymentAtDisbursement", isRepaymentAtDisbursement())
+                .append("notRecoveryRepayment", isNotRecoveryRepayment())
+                .append("recoveryRepayment", isRecoveryRepayment())
+                .append("interestWaiver", isInterestWaiver())
+                .append("chargesWaiver", isChargesWaiver())
+                .append("notInterestWaiver", isNotInterestWaiver())
+                .append("waiver", isWaiver())
+                .append("notWaiver", isNotWaiver())
+                .append("chargePayment", isChargePayment())
+                .append("penaltyPayment", isPenaltyPayment())
+                .append("writeOff", isWriteOff())
+                .append("nonZero", isNonZero())
+                .append("refund", isRefund())
+                .append("accrual", isAccrual())
+                .append("nonMonetaryTransaction", isNonMonetaryTransaction())
+                .append("notRefundForActiveLoan", isNotRefundForActiveLoan())
+                .append("refundForActiveLoan", isRefundForActiveLoan())
+                .append("notManuallyAdjustedOrReversed", isNotManuallyAdjustedOrReversed())
+                .append("createdDateTime", getCreatedDateTime())
+                .append("allowTypeTransactionAtTheTimeOfLastUndo", isAllowTypeTransactionAtTheTimeOfLastUndo())
+                .append("accrualTransaction", isAccrualTransaction())
+                .append("paymentTransaction", isPaymentTransaction())
+                .toString();
     }
 }

@@ -34,6 +34,7 @@ public class PaymentDetailConstants {
     public static final String routingCodeParamName = "routingCode";
     public static final String receiptNumberParamName = "receiptNumber";
     public static final String bankNumberParamName = "bankNumber";
+    public static final String paymentChannelParamName = "paymentChannelId";
 
     // template related part of response
     public static final String officeOptionsParamName = "paymentTypeOptions";

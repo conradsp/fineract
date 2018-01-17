@@ -24,7 +24,7 @@ import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourc
 public class PaymentTypeNotFoundException extends AbstractPlatformResourceNotFoundException {
 
     public PaymentTypeNotFoundException(final Long id) {
-        super("error.msg.payment.type.invalid", "PaymentType with " + id + " does not exist", id);
+        super("error.msg.payment.type.invalid", "PaymentDirection with " + id + " does not exist", id);
     }
 } 
     

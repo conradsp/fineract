@@ -83,7 +83,7 @@ public class DynamicAMQChannelResolver {
 		MessageChannel channel = this.channels.get(name);
 		if (channel == null) {
 			ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext(
-					new String[]{"dynamic-amq-outbound-adapter-template.xml"}, false);
+					new String[]{"META-INF/spring/dynamic-amq-outbound-adapter-template.xml"}, false);
 			this.setEnvironmentForCustomer(ctx, name, brokerURL);
 			ctx.refresh();
 			channel = ctx.getBean("toAMQChannel", MessageChannel.class);

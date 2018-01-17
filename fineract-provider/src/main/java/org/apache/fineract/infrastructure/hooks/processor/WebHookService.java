@@ -35,7 +35,7 @@ import com.google.gson.JsonObject;
 
 public interface WebHookService {
 
-	final static String ENTITY_HEADER = "X-Fineract-Entity";
+	final static String ENTITY_HEADER = "X-Fineract-PaymentEntity";
 	final static String ACTION_HEADER = "X-Fineract-Action";
 	final static String TENANT_HEADER = "Fineract-Platform-TenantId";
 	final static String ENDPOINT_HEADER = "X-Fineract-Endpoint";

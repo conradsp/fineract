@@ -302,6 +302,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         final Map<String, Object> changes = new LinkedHashMap<>();
 
         final PaymentDetail paymentDetail = this.paymentDetailWritePlatformService.createAndPersistPaymentDetail(command, changes);
+        loan.setPaymentDetail(paymentDetail);
 		if (paymentDetail != null && paymentDetail.getPaymentType() != null
 				&& paymentDetail.getPaymentType().isCashPayment()) {
 			BigDecimal transactionAmount = command

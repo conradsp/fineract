@@ -27,7 +27,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.portfolio.paymentdetail.PaymentDetailConstants;
 import org.apache.fineract.portfolio.paymentdetail.data.PaymentDetailData;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
@@ -56,6 +58,10 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
 
     @Column(name = "bank_number", length = 50)
     private String bankNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_channel_id", nullable = false)
+    private PaymentChannel paymentChannel;
 
     protected PaymentDetail() {
 
@@ -104,6 +110,12 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
         this.bankNumber = bankNumber;
     }
 
+    private PaymentDetail(final PaymentType paymentType, final String accountNumber, final String checkNumber, final String routingCode,
+                          final String receiptNumber, final String bankNumber, final PaymentChannel paymentChannel) {
+        this(paymentType, accountNumber, checkNumber, routingCode, receiptNumber, bankNumber);
+        this.paymentChannel = paymentChannel;
+    }
+
     public PaymentDetailData toData() {
         final PaymentTypeData paymentTypeData = this.paymentType.toData();
         final PaymentDetailData paymentDetailData = new PaymentDetailData(getId(), paymentTypeData, this.accountNumber, this.checkNumber,
@@ -116,4 +128,30 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
     }
 
     public String getReceiptNumber() { return this.receiptNumber; }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public PaymentChannel getPaymentChannel() {
+        return paymentChannel;
+    }
+
+    public void setPaymentChannel(PaymentChannel paymentChannel) {
+        this.paymentChannel = paymentChannel;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("paymentType", paymentType)
+                .append("accountNumber", accountNumber)
+                .append("checkNumber", checkNumber)
+                .append("routingCode", routingCode)
+                .append("receiptNumber", receiptNumber)
+                .append("bankNumber", bankNumber)
+                .append("paymentChannel", paymentChannel)
+                .append("toData", toData())
+                .toString();
+    }
 }

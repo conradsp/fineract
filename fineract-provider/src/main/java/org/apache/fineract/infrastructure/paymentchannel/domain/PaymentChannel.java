@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.persistence.*;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.useradministration.domain.AppUser;
@@ -204,5 +205,20 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	public void setCreatedBy(AppUser createdBy) {
 		this.createdBy = createdBy;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("channelName", channelName)
+				.append("channelBrokerEndpoint", channelBrokerEndpoint)
+				.append("channelType", channelType)
+				.append("isActive", isActive)
+				.append("phoneNumberDefaultRegion", phoneNumberDefaultRegion)
+				.append("dateCreated", dateCreated)
+				.append("lastModified", lastModified)
+				.append("createdBy", createdBy)
+				.append("active", isActive())
+				.toString();
 	}
 }

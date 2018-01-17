@@ -46,8 +46,8 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 
 /**
- * Entity Datatable Checks Integration Test for checking Creation, Deletion and
- * Retrieval of Entity-Datatable Check
+ * PaymentEntity Datatable Checks Integration Test for checking Creation, Deletion and
+ * Retrieval of PaymentEntity-Datatable Check
  */
 
 public class EntityDatatableChecksIntegrationTest {

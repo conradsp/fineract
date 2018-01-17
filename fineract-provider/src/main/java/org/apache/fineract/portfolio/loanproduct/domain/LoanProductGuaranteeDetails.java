@@ -32,7 +32,7 @@ import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
 /**
- * Entity for capturing interest recalculation settings
+ * PaymentEntity for capturing interest recalculation settings
  * 
  * @author conflux
  */

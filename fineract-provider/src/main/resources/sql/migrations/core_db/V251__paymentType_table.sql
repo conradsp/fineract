@@ -32,7 +32,7 @@ SELECT id,code_value,code_description,order_position
 FROM m_code_value 
 where code_id in
 (select mc.id
-from m_code mc where mc.code_name='PaymentType' 
+from m_code mc where mc.code_name='PaymentDirection'
 );
 
 ALTER TABLE `m_payment_detail`
@@ -54,7 +54,7 @@ DELETE from m_code_value
 WHERE
 m_code_value.code_id in 
 (SELECT mc.id
-FROM m_code mc where mc.code_name='PaymentType' );
+FROM m_code mc where mc.code_name='PaymentDirection' );
 
 DELETE FROM m_code WHERE code_name="PaymentType";
 	

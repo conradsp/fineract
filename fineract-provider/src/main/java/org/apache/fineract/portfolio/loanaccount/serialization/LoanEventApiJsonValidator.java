@@ -40,6 +40,7 @@ import org.apache.fineract.portfolio.calendar.exception.NotValidRecurringDateExc
 import org.apache.fineract.portfolio.calendar.service.CalendarUtils;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanDisbursementDetails;
+import org.apache.fineract.portfolio.paymentdetail.PaymentDetailConstants;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -78,7 +79,7 @@ public final class LoanEventApiJsonValidator {
         } else {
             disbursementParameters = new HashSet<>(Arrays.asList("actualDisbursementDate", "externalId", "note", "locale",
                     "dateFormat", "paymentTypeId", "accountNumber", "checkNumber", "routingCode", "receiptNumber", "bankNumber", "adjustRepaymentDate", 
-                    LoanApiConstants.principalDisbursedParameterName, LoanApiConstants.emiAmountParameterName));
+                    LoanApiConstants.principalDisbursedParameterName, LoanApiConstants.emiAmountParameterName, PaymentDetailConstants.paymentChannelParamName));
         }
 
         final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
