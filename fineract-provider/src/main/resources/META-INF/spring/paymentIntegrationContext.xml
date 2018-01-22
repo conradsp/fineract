@@ -22,12 +22,43 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+                           http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
 
-    <bean id="paymentChannelResolver" class="org.apache.fineract.infrastructure.paymentgateway.config.DynamicAMQChannelResolver"/>
+    <bean id="paymentJMSConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://localhost:32768"/>
+                <property name="clientID" value="mifos-service"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="paymentChannelResolver"
+          class="org.apache.fineract.infrastructure.paymentgateway.config.DynamicAMQChannelResolver"/>
 
     <int:channel id="routerChannel"/>
 
     <int:router input-channel="routerChannel" expression="@paymentChannelResolver.resolve(headers['channel-name'])"/>
 
+    <int-jms:inbound-channel-adapter
+            id="incomingPaymentInboundAdapter"
+            auto-startup="true"
+            connection-factory="paymentJMSConnectionFactory"
+            destination="incomingPaymentQueue"
+            channel="incomingPaymentChannel">
+        <int:poller fixed-rate="100"/>
+    </int-jms:inbound-channel-adapter>
+
+    <int:channel id="incomingPaymentChannel"/>
+
+    <int:service-activator ref="inboundPaymentHandler" method="handlePayment" input-channel="incomingPaymentChannel"/>
+
+    <bean id="incomingPaymentQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="org.apache.fineract.incomingPayment"/>
+    </bean>
+
+    <bean id="inboundPaymentHandler" class="org.apache.fineract.infrastructure.paymentgateway.service.InboundPaymentHandler"/>
 </beans>
