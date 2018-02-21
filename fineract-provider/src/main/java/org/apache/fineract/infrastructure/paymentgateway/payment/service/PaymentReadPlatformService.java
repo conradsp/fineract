@@ -17,16 +17,15 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.domain;
+package org.apache.fineract.infrastructure.payment.service;
 
-public class PaymentAck {
-	private long paymentId;
+import java.util.Collection;
 
-	public long getPaymentId() {
-		return paymentId;
-	}
+import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
 
-	public void setPaymentId(long paymentId) {
-		this.paymentId = paymentId;
-	}
+public interface PaymentChannelReadPlatformService {
+
+	Collection<PaymentChannelData> retrieveAllPaymentChannelData();
+	
+	PaymentChannelData retrievePaymentChannelDataById(Long id);
 }
