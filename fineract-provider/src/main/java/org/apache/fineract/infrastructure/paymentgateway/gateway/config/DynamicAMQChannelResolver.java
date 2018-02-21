@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.config;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.fineract.infrastructure.paymentgateway.exception.ChannelNotFoundException;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.exception.ChannelNotFoundException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;

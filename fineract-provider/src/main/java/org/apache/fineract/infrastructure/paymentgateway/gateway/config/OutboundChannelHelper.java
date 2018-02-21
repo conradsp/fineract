@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.config;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

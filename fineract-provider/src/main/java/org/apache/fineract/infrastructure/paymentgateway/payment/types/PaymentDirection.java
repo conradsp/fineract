@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.payment.types;
+package org.apache.fineract.infrastructure.paymentgateway.payment.types;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

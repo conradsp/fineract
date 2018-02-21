@@ -37,7 +37,7 @@
     </bean>
 
     <bean id="paymentChannelResolver"
-          class="org.apache.fineract.infrastructure.paymentgateway.config.DynamicAMQChannelResolver"/>
+          class="org.apache.fineract.infrastructure.paymentgateway.gateway.config.DynamicAMQChannelResolver"/>
 
     <int:channel id="routerChannel"/>
 
@@ -60,5 +60,8 @@
         <constructor-arg value="org.apache.fineract.incomingPayment"/>
     </bean>
 
-    <bean id="inboundPaymentHandler" class="org.apache.fineract.infrastructure.paymentgateway.service.InboundPaymentHandler"/>
+    <bean id="inboundPaymentHandler" class="org.apache.fineract.infrastructure.paymentgateway.gateway.service.InboundPaymentHandler">
+        <constructor-arg ref="fromJsonHelper"/>
+        <constructor-arg ref="paymentChannelReadPlatformService"/>
+    </bean>
 </beans>

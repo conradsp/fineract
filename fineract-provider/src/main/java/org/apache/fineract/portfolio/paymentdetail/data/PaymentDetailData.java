@@ -18,7 +18,7 @@
  */
 package org.apache.fineract.portfolio.paymentdetail.data;
 
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
 
 /**

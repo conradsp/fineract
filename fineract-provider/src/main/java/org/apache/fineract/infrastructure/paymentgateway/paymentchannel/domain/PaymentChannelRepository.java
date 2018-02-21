@@ -17,11 +17,13 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentchannel.domain;
+package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface PaymentChannelRepository extends JpaRepository<PaymentChannel, Long>, JpaSpecificationExecutor<PaymentChannel>{
+
+	PaymentChannel findByChannelName(String channelName);
 
 }

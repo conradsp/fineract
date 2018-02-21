@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.paymentgateway.util;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.util;
 
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Value;

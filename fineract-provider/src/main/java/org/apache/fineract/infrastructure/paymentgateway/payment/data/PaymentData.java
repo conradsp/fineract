@@ -16,18 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.payment.data;
+package org.apache.fineract.infrastructure.paymentgateway.payment.data;
+
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
+import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class PaymentData implements Serializable {
-	private Long clientId;
+public class PaymentData implements Comparable<PaymentData>, Serializable {
+    private Long id;
+    private Long clientId;
 	private Long entityId;
 	private int paymentEntity;
-	private Long mifosPaymentId;
-	private String paymentAccount;
+	private String paymentSourceAccount;
+    private String paymentDestinationAccount;
 	private BigDecimal transactionAmount;
 	private int paymentStatus;
 	private int paymentDirection;
@@ -36,6 +40,23 @@ public class PaymentData implements Serializable {
 	private Date lastModified;
 	private Date transactionDate;
 	private String channelResponseMessage;
+
+	public PaymentData(Payment payment){
+        this.id= payment.getId();
+        this.clientId= payment.getClientId();
+        this.entityId= payment.getEntityId();
+        this.paymentEntity= payment.getPaymentEntity();
+        this.paymentSourceAccount= payment.getPaymentSourceAccount();
+        this.paymentDestinationAccount= payment.getPaymentDestinationAccount();
+        this.transactionAmount= payment.getTransactionAmount();
+        this.paymentStatus= payment.getPaymentStatus();
+        this.paymentDirection= payment.getPaymentDirection();
+        this.externalId= payment.getExternalId();
+        this.dateCreated= payment.getDateCreated();
+        this.lastModified= payment.getLastModified();
+        this.transactionDate= payment.getTransactionDate();
+        this.channelResponseMessage= payment.getChannelResponseMessage();
+    }
 
     public Long getClientId() {
         return clientId;
@@ -55,7 +76,7 @@ public class PaymentData implements Serializable {
 
     /**
      * A value from
-     * {@link org.apache.fineract.infrastructure.payment.types.PaymentEntity}.
+     * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity}.
      */
     public int getPaymentEntity() {
         return paymentEntity;
@@ -65,20 +86,20 @@ public class PaymentData implements Serializable {
         this.paymentEntity = paymentEntity;
     }
 
-    public Long getMifosPaymentId() {
-        return mifosPaymentId;
+    public String getPaymentSourceAccount() {
+        return paymentSourceAccount;
     }
 
-    public void setMifosPaymentId(Long mifosPaymentId) {
-        this.mifosPaymentId = mifosPaymentId;
+    public void setPaymentSourceAccount(String paymentSourceAccount) {
+        this.paymentSourceAccount = paymentSourceAccount;
     }
 
-    public String getPaymentAccount() {
-        return paymentAccount;
+    public String getPaymentDestinationAccount() {
+        return paymentDestinationAccount;
     }
 
-    public void setPaymentAccount(String paymentAccount) {
-        this.paymentAccount = paymentAccount;
+    public void setPaymentDestinationAccount(String paymentDestinationAccount) {
+        this.paymentDestinationAccount = paymentDestinationAccount;
     }
 
     public BigDecimal getTransactionAmount() {
@@ -91,7 +112,7 @@ public class PaymentData implements Serializable {
 
     /**
      * A value from
-     * {@link org.apache.fineract.infrastructure.payment.types.PaymentStatus}.
+     * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus}.
      */
     public int getPaymentStatus() {
         return paymentStatus;
@@ -103,7 +124,7 @@ public class PaymentData implements Serializable {
 
     /**
      * A value from
-     * {@link org.apache.fineract.infrastructure.payment.types.PaymentDirection}.
+     * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection}.
      */
     public int getPaymentDirection() {
         return paymentDirection;
@@ -151,5 +172,20 @@ public class PaymentData implements Serializable {
 
     public void setChannelResponseMessage(String channelResponseMessage) {
         this.channelResponseMessage = channelResponseMessage;
+    }
+
+    @Override
+    public int compareTo(PaymentData obj) {
+        if (obj == null) { return -1; }
+
+        return obj.id.compareTo(this.id);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

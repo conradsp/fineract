@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentchannel.api;
+package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.api;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,8 +36,8 @@ import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
-import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
-import org.apache.fineract.infrastructure.paymentchannel.service.PaymentChannelReadPlatformService;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelReadPlatformService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;

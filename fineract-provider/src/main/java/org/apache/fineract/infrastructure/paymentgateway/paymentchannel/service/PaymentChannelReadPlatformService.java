@@ -17,15 +17,17 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentchannel.service;
+package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service;
 
 import java.util.Collection;
 
-import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
 
 public interface PaymentChannelReadPlatformService {
 
 	Collection<PaymentChannelData> retrieveAllPaymentChannelData();
 	
 	PaymentChannelData retrievePaymentChannelDataById(Long id);
+	
+	PaymentChannelData retrievePaymentChannelDataByChannelName(String channelName);
 }

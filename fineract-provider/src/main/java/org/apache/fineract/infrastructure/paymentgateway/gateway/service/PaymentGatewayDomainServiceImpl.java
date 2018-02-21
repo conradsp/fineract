@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.paymentgateway.service;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.fineract.infrastructure.payment.domain.Payment;
-import org.apache.fineract.infrastructure.payment.domain.PaymentRepository;
-import org.apache.fineract.infrastructure.payment.types.PaymentDirection;
-import org.apache.fineract.infrastructure.payment.types.PaymentEntity;
-import org.apache.fineract.infrastructure.payment.types.PaymentStatus;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentgateway.config.OutboundChannelHelper;
-import org.apache.fineract.infrastructure.paymentgateway.util.HashUtil;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.config.OutboundChannelHelper;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.HashUtil;
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentRepository;
+import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
+import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
+import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants;
 import org.apache.fineract.portfolio.common.service.BusinessEventListner;
@@ -121,14 +121,14 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 				PaymentChannel paymentChannel = paymentDetail.getPaymentChannel();
 
 				Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN.getValue(),
-						paymentDetail.getAccountNumber(), loanTransaction.getAmount(loan.getCurrency()).getAmount(),
+						loan.getAccountNumber(), paymentDetail.getAccountNumber(), loanTransaction.getAmount(loan.getCurrency()).getAmount(),
 						PaymentStatus.PAYMENT_PROCESSING.getValue(), PaymentDirection.OUTGOING.getValue(),
 						paymentChannel, securityContext.getAuthenticatedUserIfPresent());
 
 				payment = paymentRepository.save(payment);
 				Map<String, Object> paymentMap = new HashMap<>();
 				paymentMap.put("transactionReference", hashUtil.hashEncodeId(payment.getId()));
-				paymentMap.put("paymentAccount", payment.getPaymentAccount());
+				paymentMap.put("paymentAccount", payment.getPaymentDestinationAccount());
 				paymentMap.put("transactionAmount", payment.getTransactionAmount());
 
 				final String jsonPayment = new Gson().toJson(paymentMap);

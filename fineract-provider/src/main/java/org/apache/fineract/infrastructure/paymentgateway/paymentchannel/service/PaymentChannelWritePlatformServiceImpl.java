@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentchannel.service;
+package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service;
 
 import java.util.Map;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.sms.service.SmsWritePlatformServiceJpaRepositoryImpl;
 import org.apache.fineract.useradministration.domain.AppUser;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWritePlatformService {
 
-	private final static Logger logger = LoggerFactory.getLogger(SmsWritePlatformServiceJpaRepositoryImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(PaymentChannelWritePlatformServiceImpl.class);
 	private final PaymentChannelRepository paymentChannelRepository;
 	private final PlatformSecurityContext securityContext;
 

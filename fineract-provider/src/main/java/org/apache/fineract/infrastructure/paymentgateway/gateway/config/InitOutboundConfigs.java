@@ -17,14 +17,14 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.config;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
-import org.apache.fineract.infrastructure.paymentchannel.service.PaymentChannelReadPlatformService;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

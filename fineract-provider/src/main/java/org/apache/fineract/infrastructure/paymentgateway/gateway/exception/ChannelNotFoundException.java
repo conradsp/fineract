@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.fineract.infrastructure.paymentgateway.gateway.exception;
 
-package org.apache.fineract.infrastructure.paymentgateway.service;
-
-public interface PaymentGatewayDomainService {
+public class ChannelNotFoundException extends Exception {
+	public ChannelNotFoundException(String message) {
+		super(message);
+	}
 }

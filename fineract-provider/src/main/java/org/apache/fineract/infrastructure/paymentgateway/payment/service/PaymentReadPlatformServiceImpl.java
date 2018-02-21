@@ -17,44 +17,44 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.payment.service;
+package org.apache.fineract.infrastructure.paymentgateway.payment.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.fineract.infrastructure.paymentchannel.data.PaymentChannelData;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.paymentgateway.payment.data.PaymentData;
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentChannelReadPlatformServiceImpl implements PaymentChannelReadPlatformService {
-	
-	private final PaymentChannelRepository paymentChannelRepository;	
-	
+public class PaymentReadPlatformServiceImpl implements PaymentReadPlatformService {
+
+	private final PaymentRepository paymentRepository;
+
 	@Autowired
-	public PaymentChannelReadPlatformServiceImpl(PaymentChannelRepository paymentChannelRepository) {
+	public PaymentReadPlatformServiceImpl(PaymentRepository paymentRepository) {
 		super();
-		this.paymentChannelRepository = paymentChannelRepository;
+		this.paymentRepository = paymentRepository;
 	}
 
 	@Override
-	public Collection<PaymentChannelData> retrieveAllPaymentChannelData() {
-		List<PaymentChannel> paymentChannels = paymentChannelRepository.findAll();
-		
-		List<PaymentChannelData>  paymentChannelDataList = new ArrayList<>();
-		for (PaymentChannel paymentChannel : paymentChannels) {
-			paymentChannelDataList.add(new PaymentChannelData(paymentChannel));
+	public Collection<PaymentData> retrieveAllPaymentData() {
+		List<Payment> payments = paymentRepository.findAll();
+
+		List<PaymentData> paymentDataList = new ArrayList<>();
+		for (Payment payment : payments) {
+			paymentDataList.add(new PaymentData(payment));
 		}
-		return paymentChannelDataList;
+		return paymentDataList;
 	}
 
 	@Override
-	public PaymentChannelData retrievePaymentChannelDataById(Long id) {
-		PaymentChannel paymentChannel = paymentChannelRepository.findOne(id);
-		return new PaymentChannelData(paymentChannel);
+	public PaymentData retrievePaymentDataById(Long id) {
+		Payment payment = paymentRepository.findOne(id);
+		return new PaymentData(payment);
 	}
 
 }

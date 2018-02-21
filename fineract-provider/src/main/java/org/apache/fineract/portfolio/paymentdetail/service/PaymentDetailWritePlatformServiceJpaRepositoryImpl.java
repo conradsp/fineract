@@ -21,8 +21,8 @@ package org.apache.fineract.portfolio.paymentdetail.service;
 import java.util.Map;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
 import org.apache.fineract.portfolio.paymentdetail.PaymentDetailConstants;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetailRepository;

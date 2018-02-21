@@ -17,13 +17,13 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentchannel.data;
+package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannelType;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelType;
 
 public class PaymentChannelData implements Comparable<PaymentChannelData>, Serializable{
 	private Long id;

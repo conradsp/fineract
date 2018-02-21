@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.infrastructure.payment.domain;
+package org.apache.fineract.infrastructure.paymentgateway.payment.domain;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,7 +24,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
-import org.apache.fineract.infrastructure.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.useradministration.domain.AppUser;
 
 @Entity
@@ -36,8 +36,10 @@ public class Payment extends AbstractPersistableCustom<Long> {
 	private Long entityId;
 	@Column(name = "payment_entity")
 	private int paymentEntity;
-	@Column(name = "payment_account", length = 100)
-	private String paymentAccount;
+	@Column(name = "payment_source_account", length = 100)
+	private String paymentSourceAccount;
+	@Column(name = "payment_destination_account", length = 100)
+	private String paymentDestinationAccount;
 	@Column(name = "transaction_amount", scale = 6, precision = 19)
 	private BigDecimal transactionAmount;
 	@Column(name = "payment_status")
@@ -61,12 +63,13 @@ public class Payment extends AbstractPersistableCustom<Long> {
 	@JoinColumn(name = "user_id", nullable = true)
 	private AppUser createdBy;
 
-	public Payment(Long clientId, Long entityId, int paymentEntity, String paymentAccount, BigDecimal transactionAmount,
+	public Payment(Long clientId, Long entityId, int paymentEntity, String paymentSourceAccount, String paymentDestinationAccount, BigDecimal transactionAmount,
 			int paymentStatus, int paymentDirection, PaymentChannel paymentChannel, AppUser createdBy) {
 		this.clientId = clientId;
 		this.entityId = entityId;
 		this.paymentEntity = paymentEntity;
-		this.paymentAccount = paymentAccount;
+		this.paymentSourceAccount = paymentSourceAccount;
+		this.paymentDestinationAccount = paymentDestinationAccount;
 		this.transactionAmount = transactionAmount;
 		this.paymentStatus = paymentStatus;
 		this.paymentDirection = paymentDirection;
@@ -74,11 +77,11 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.createdBy = createdBy;
 	}
 
-	public Payment(Long clientId, Long entityId, int paymentEntity, String paymentAccount, BigDecimal transactionAmount,
+	public Payment(Long clientId, Long entityId, int paymentEntity, String paymentSourceAccount, String paymentDestinationAccount, BigDecimal transactionAmount,
 			int paymentStatus, int paymentDirection, String externalId, String channelResponseMessage,
 			PaymentChannel paymentChannel, AppUser createdBy, Date dateCreated, Date transactionDate,
 			Date lastModified) {
-		this(clientId, entityId, paymentEntity, paymentAccount, transactionAmount, paymentStatus, paymentDirection,
+		this(clientId, entityId, paymentEntity, paymentSourceAccount, paymentDestinationAccount, transactionAmount, paymentStatus, paymentDirection,
 				paymentChannel, createdBy);
 
 		this.dateCreated = dateCreated;
@@ -118,7 +121,7 @@ public class Payment extends AbstractPersistableCustom<Long> {
 
 	/**
 	 * A value from
-	 * {@link org.apache.fineract.infrastructure.payment.types.PaymentEntity}.
+	 * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity}.
 	 */
 	public int getPaymentEntity() {
 		return paymentEntity;
@@ -128,12 +131,20 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.paymentEntity = paymentEntity;
 	}
 
-	public String getPaymentAccount() {
-		return paymentAccount;
+	public String getPaymentSourceAccount() {
+		return paymentSourceAccount;
 	}
 
-	public void setPaymentAccount(String paymentAccount) {
-		this.paymentAccount = paymentAccount;
+	public void setPaymentSourceAccount(String paymentAccount) {
+		this.paymentSourceAccount = paymentAccount;
+	}
+
+	public String getPaymentDestinationAccount() {
+		return paymentDestinationAccount;
+	}
+
+	public void setPaymentDestinationAccount(String paymentAccount) {
+		this.paymentDestinationAccount = paymentAccount;
 	}
 
 	public BigDecimal getTransactionAmount() {
@@ -146,7 +157,7 @@ public class Payment extends AbstractPersistableCustom<Long> {
 
 	/**
 	 * A value from
-	 * {@link org.apache.fineract.infrastructure.payment.types.PaymentStatus}.
+	 * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus}.
 	 */
 	public int getPaymentStatus() {
 		return paymentStatus;
@@ -158,7 +169,7 @@ public class Payment extends AbstractPersistableCustom<Long> {
 
 	/**
 	 * A value from
-	 * {@link org.apache.fineract.infrastructure.payment.types.PaymentDirection}.
+	 * {@link org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection}.
 	 */
 	public int getPaymentDirection() {
 		return paymentDirection;

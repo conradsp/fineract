@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.util;
+package org.apache.fineract.infrastructure.paymentgateway.gateway.util;
 
 import org.joda.time.DateTime;
 import org.joda.time.Years;
