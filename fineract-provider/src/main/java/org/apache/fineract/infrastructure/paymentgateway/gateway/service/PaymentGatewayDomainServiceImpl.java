@@ -52,6 +52,7 @@ import com.google.gson.Gson;
 public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainService {
 
 	private static final Logger logger = LoggerFactory.getLogger(PaymentGatewayDomainServiceImpl.class);
+	// TODO: Add proper logging
 
 	private final BusinessEventNotifierService businessEventNotifierService;
 	private final OutboundChannelHelper outboundChannelHelper;
@@ -120,9 +121,9 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 				PaymentDetail paymentDetail = loanTransaction.getPaymentDetail();
 				PaymentChannel paymentChannel = paymentDetail.getPaymentChannel();
 
-				Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN.getValue(),
+				Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN,
 						loan.getAccountNumber(), paymentDetail.getAccountNumber(), loanTransaction.getAmount(loan.getCurrency()).getAmount(),
-						PaymentStatus.PAYMENT_PROCESSING.getValue(), PaymentDirection.OUTGOING.getValue(),
+						PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.OUTGOING,
 						paymentChannel, securityContext.getAuthenticatedUserIfPresent());
 
 				payment = paymentRepository.save(payment);

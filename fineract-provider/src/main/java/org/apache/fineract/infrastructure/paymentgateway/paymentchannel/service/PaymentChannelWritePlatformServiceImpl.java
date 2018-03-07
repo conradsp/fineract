@@ -40,21 +40,21 @@ public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWri
 
 	private final static Logger logger = LoggerFactory.getLogger(PaymentChannelWritePlatformServiceImpl.class);
 	private final PaymentChannelRepository paymentChannelRepository;
-	private final PlatformSecurityContext securityContext;
+	private final PlatformSecurityContext context;
 
 	@Autowired
 	public PaymentChannelWritePlatformServiceImpl(PaymentChannelRepository paymentChannelRepository,
-			PlatformSecurityContext securityContext) {
+			PlatformSecurityContext context) {
 		super();
 		this.paymentChannelRepository = paymentChannelRepository;
-		this.securityContext = securityContext;
+		this.context = context;
 	}
 
 	@Override
 	public CommandProcessingResult create(JsonCommand command) {
 		try {
 			PaymentChannel paymentChannel = PaymentChannel.fromJson(command);
-			paymentChannel.setCreatedBy(this.securityContext.authenticatedUser());
+			paymentChannel.setCreatedBy(this.context.authenticatedUser());
 			paymentChannel = paymentChannelRepository.save(paymentChannel);
 			return new CommandProcessingResultBuilder() //
 					.withCommandId(command.commandId()) //

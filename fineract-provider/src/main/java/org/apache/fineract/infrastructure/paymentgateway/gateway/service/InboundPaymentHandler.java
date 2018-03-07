@@ -21,17 +21,24 @@ package org.apache.fineract.infrastructure.paymentgateway.gateway.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.data.GatewaySubscriberData;
+import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.service.GatewaySubscriberReadPlatformService;
 import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
+import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentRepository;
+import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
+import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelType;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelReadPlatformService;
+import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
 import org.springframework.messaging.Message;
@@ -42,25 +49,35 @@ public class InboundPaymentHandler {
 
 	private static final String amountParameterName = "amount";
 	private static final String channelNameParameterName = "channelName";
-	private static final String externalChannelRefIdParameterName = "externalChannelRefId";
+	private static final String externalRefIdParameterName = "externalRefId";
 	private static final String channelRefIdParameterName = "channelRefId";
-	private static final String destinationPaymentAccountParameterName = "destinationPaymentAccount";
+	private static final String paymentRefParameterName = "paymentRef";
 	private static final String sourcePaymentAccountParameterName = "sourcePaymentAccount";
-	private static final String paymentAccountTypeParameterName = "paymentAccountType";
+	private static final String channelMessageParameterName = "message";
 	protected static final Logger logger = Logger.getLogger(InboundPaymentHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
 	private final PaymentChannelRepository paymentChannelRepository;
 	private final ClientReadPlatformService clientReadPlatformService;
+	private final PaymentRepository paymentRepository;
+	private final GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService;
+	private final PlatformSecurityContext context;
 
 	public InboundPaymentHandler(FromJsonHelper fromJsonHelper, PaymentChannelRepository paymentChannelRepository,
-			ClientReadPlatformService clientReadPlatformService) {
+			ClientReadPlatformService clientReadPlatformService,
+			GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService,
+			PaymentRepository paymentRepository, PlatformSecurityContext context) {
 		this.fromJsonHelper = fromJsonHelper;
 		this.paymentChannelRepository = paymentChannelRepository;
 		this.clientReadPlatformService = clientReadPlatformService;
+		this.gatewaySubscriberReadPlatformService = gatewaySubscriberReadPlatformService;
+		this.paymentRepository = paymentRepository;
+		this.context = context;
 	}
 
 	public void handlePayment(Message<String> message) {
+		logger.info("inbount_payment_start " + message.toString());
 		String payload = message.getPayload();
+
 		JsonElement jsonElement = fromJsonHelper.parse(payload);
 		final Locale locale = this.fromJsonHelper.extractLocaleParameter(jsonElement.getAsJsonObject());
 		PaymentChannel paymentChannel = null;
@@ -74,57 +91,62 @@ public class InboundPaymentHandler {
 		if (this.fromJsonHelper.parameterExists(channelNameParameterName, jsonElement)) {
 			channelName = this.fromJsonHelper.extractStringNamed(channelNameParameterName, jsonElement);
 		}
-		String externalChannelRefId = null;
-		if (this.fromJsonHelper.parameterExists(externalChannelRefIdParameterName, jsonElement)) {
-			externalChannelRefId = this.fromJsonHelper.extractStringNamed(externalChannelRefIdParameterName,
-					jsonElement);
+		String externalRefId = null;
+		if (this.fromJsonHelper.parameterExists(externalRefIdParameterName, jsonElement)) {
+			externalRefId = this.fromJsonHelper.extractStringNamed(externalRefIdParameterName, jsonElement);
 		}
 		String channelRefId = null;
 		if (this.fromJsonHelper.parameterExists(channelRefIdParameterName, jsonElement)) {
 			channelRefId = this.fromJsonHelper.extractStringNamed(channelRefIdParameterName, jsonElement);
 		}
-		String destinationPaymentAccount = null;
-		if (this.fromJsonHelper.parameterExists(destinationPaymentAccountParameterName, jsonElement)) {
-			destinationPaymentAccount = this.fromJsonHelper.extractStringNamed(destinationPaymentAccountParameterName, jsonElement);
+		String paymentRef = null;
+		if (this.fromJsonHelper.parameterExists(paymentRefParameterName, jsonElement)) {
+			paymentRef = this.fromJsonHelper.extractStringNamed(paymentRefParameterName, jsonElement);
 		}
-		
+
 		String sourcePaymentAccount = null;
 		if (this.fromJsonHelper.parameterExists(sourcePaymentAccountParameterName, jsonElement)) {
-			sourcePaymentAccount = this.fromJsonHelper.extractStringNamed(sourcePaymentAccountParameterName, jsonElement);
+			sourcePaymentAccount = this.fromJsonHelper.extractStringNamed(sourcePaymentAccountParameterName,
+					jsonElement);
 		}
-		
-		Integer paymentAccountType = null;
-		if (this.fromJsonHelper.parameterExists(paymentAccountTypeParameterName, jsonElement)) {
-			paymentAccountType = this.fromJsonHelper.extractIntegerNamed(paymentAccountTypeParameterName, jsonElement, locale);
+
+		String channelMessage = null;
+		if (this.fromJsonHelper.parameterExists(channelMessageParameterName, jsonElement)) {
+			channelMessage = this.fromJsonHelper.extractStringNamed(channelMessageParameterName, jsonElement);
 		}
-		
+
 		paymentChannel = paymentChannelRepository.findByChannelName(channelName);
 		if (paymentChannel == null) {
 			errors.add("Invalid payment channel named: " + channelName);
 		}
-		
+
 		ClientData clientData = null;
 		if (PaymentChannelType.fromInt(paymentChannel.getChannelType()).isMobileMoneyChannel()) {
-			String criteria = String.format("mobile_no = \'%s\'", destinationPaymentAccount);
+			String criteria = String.format("mobile_no = \'%s\'", sourcePaymentAccount);
 			Collection<ClientData> clientDataCollection = clientReadPlatformService.retrieveAllForLookup(criteria);
 			Iterator<ClientData> iterator = clientDataCollection.iterator();
-			if(iterator.hasNext()) {
+			if (iterator.hasNext()) {
 				clientData = iterator.next();
 			}
 		}
-		if(clientData == null) {
-			errors.add("Client data with account: " + destinationPaymentAccount + " not found");
+
+		GatewaySubscriberData gatewaySubscriberData = null;
+		if (clientData != null) {
+			gatewaySubscriberData = gatewaySubscriberReadPlatformService.findByClientIdAndPaymentRef(clientData.getId(),
+					paymentRef);
+		} else {
+			errors.add("Client data with account: " + sourcePaymentAccount + " not found");
 		}
 
-//        Payment payment = new Payment(Long clientId, Long entityId, int paymentEntity, String paymentSourceAccount, String paymentDestinationAccount, BigDecimal transactionAmount,
-//        int paymentStatus, int paymentDirection, String externalId, String channelResponseMessage,
-//                PaymentChannel paymentChannel, AppUser createdBy, Date dateCreated, Date transactionDate,
-//                Date lastModified);
+		Date date = new Date();
 
-		System.out.println("Printing the message:");
-		System.out.println(message);
+		Payment payment = new Payment(clientData.getId(), gatewaySubscriberData.getEntityId(),
+				gatewaySubscriberData.getPaymentEntity(), sourcePaymentAccount, null, amount,
+				PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.INCOMING, channelRefId, externalRefId,
+				channelMessage, paymentChannel, this.context.getAuthenticatedUserIfPresent(), date, date, date);
+		// Save Payment
+		payment = paymentRepository.save(payment);
 
-		logger.info("Printing the message:");
-		logger.info(message.toString());
+		logger.log(Level.FINE, "inbount_payment_saved " + payment.toString());
 	}
 }

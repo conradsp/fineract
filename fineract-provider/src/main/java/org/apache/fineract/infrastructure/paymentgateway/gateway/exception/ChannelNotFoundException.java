@@ -19,6 +19,9 @@
 package org.apache.fineract.infrastructure.paymentgateway.gateway.exception;
 
 public class ChannelNotFoundException extends Exception {
+	
+	private static final long serialVersionUID = -6042248425029587199L;
+
 	public ChannelNotFoundException(String message) {
 		super(message);
 	}
