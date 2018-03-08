@@ -1,18 +1,23 @@
 package org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.domain;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
+import org.apache.fineract.useradministration.domain.AppUser;
 
 @Entity
-@Table(name = "payment_subscriber")
+@Table(name = "payment_gateway_subscriber")
 public class GatewaySubscriber extends AbstractPersistableCustom<Long> {
 	private static final long serialVersionUID = 821716679287590971L;
 	@Column(name = "client_id")
@@ -26,6 +31,12 @@ public class GatewaySubscriber extends AbstractPersistableCustom<Long> {
 	private int paymentEntity;
 	@Column(name = "payment_ref")
 	private String paymentRef;
+	@Column(name = "date_created", updatable = false, nullable = false)
+	private Date dateCreated;
+	@Column(name = "last_modified", nullable = false)
+	private Date lastModified;
+	@JoinColumn(name = "user_id", nullable = true)
+	private AppUser createdBy;
 
 	public GatewaySubscriber(Long clientId, Long entityId, int paymentEntity, String paymentRef) {
 		super();
@@ -76,6 +87,18 @@ public class GatewaySubscriber extends AbstractPersistableCustom<Long> {
 
 		return actualChanges;
 	}
+	
+	@PrePersist
+	protected void onCreate() {
+		Date date = new Date();
+		this.dateCreated = date;
+		this.lastModified = date;
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.lastModified = new Date();
+	}
 
 	public Long getClientId() {
 		return clientId;
@@ -107,5 +130,29 @@ public class GatewaySubscriber extends AbstractPersistableCustom<Long> {
 
 	public void setPaymentRef(String paymentRef) {
 		this.paymentRef = paymentRef;
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public AppUser getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(AppUser createdBy) {
+		this.createdBy = createdBy;
 	}
 }
