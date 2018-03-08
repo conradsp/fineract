@@ -46,7 +46,7 @@ import org.springframework.messaging.Message;
 import com.google.gson.JsonElement;
 
 public class InboundPaymentHandler {
-
+    // TODO: handle proper logging
 	private static final String amountParameterName = "amount";
 	private static final String channelNameParameterName = "channelName";
 	private static final String externalRefIdParameterName = "externalRefId";

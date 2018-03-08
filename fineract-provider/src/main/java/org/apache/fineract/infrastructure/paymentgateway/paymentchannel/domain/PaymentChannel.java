@@ -33,9 +33,10 @@ import org.joda.time.LocalDate;
 
 @Entity
 @Table(name = "payment_channel", uniqueConstraints = {
-		@UniqueConstraint(columnNames = {"channel_name"}, name = "unique_channel_name")})
+		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name") })
 public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
+	private static final long serialVersionUID = -7898973749472818660L;
 	@Column(name = "channel_name", length = 150, nullable = false, unique = true)
 	private String channelName;
 	@Column(name = "channel_broker_endpoint", length = 250, nullable = false, unique = true)
@@ -71,11 +72,10 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		this.isActive = isActive;
 		this.phoneNumberDefaultRegion = phoneNumberDefaultRegion;
 		this.dateCreated = dateCreated.toDateTimeAtStartOfDay().toDate();
-		this.createdBy = createdBy;
 	}
 
-	public PaymentChannel(final AppUser currentUser, String channelName, String channelBrokerEndpoint, int channelType,
-			boolean isActive, String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
+	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType, boolean isActive,
+			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified, final AppUser currentUser) {
 		this(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion, dateCreated,
 				lastModified);
 		this.createdBy = currentUser;
@@ -209,16 +209,10 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this)
-				.append("channelName", channelName)
-				.append("channelBrokerEndpoint", channelBrokerEndpoint)
-				.append("channelType", channelType)
-				.append("isActive", isActive)
-				.append("phoneNumberDefaultRegion", phoneNumberDefaultRegion)
-				.append("dateCreated", dateCreated)
-				.append("lastModified", lastModified)
-				.append("createdBy", createdBy)
-				.append("active", isActive())
-				.toString();
+		return new ToStringBuilder(this).append("channelName", channelName)
+				.append("channelBrokerEndpoint", channelBrokerEndpoint).append("channelType", channelType)
+				.append("isActive", isActive).append("phoneNumberDefaultRegion", phoneNumberDefaultRegion)
+				.append("dateCreated", dateCreated).append("lastModified", lastModified).append("createdBy", createdBy)
+				.append("active", isActive()).toString();
 	}
 }
