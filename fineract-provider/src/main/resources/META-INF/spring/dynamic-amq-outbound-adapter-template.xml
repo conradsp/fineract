@@ -1,53 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements. See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership. The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License. You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied. See the License for the
-    specific language governing permissions and limitations
-    under the License.
-
--->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
-       xmlns:int="http://www.springframework.org/schema/integration"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-    <context:property-placeholder/>
+	<context:property-placeholder />
 
-    <int:channel id="toAMQChannel"/>
+	<int:channel id="toAMQRequestChannel" />
+	<int:channel id="toAMQResponseChannel" />
 
-    <bean id="channelAMQConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
-        <property name="targetConnectionFactory">
-            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="${channel.brokerURL}"/>
-            </bean>
-        </property>
-    </bean>
+	<bean id="channelAMQConnectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="${channel.brokerURL}" />
+			</bean>
+		</property>
+	</bean>
 
-    <int-jms:outbound-channel-adapter
-            id="outBoundGateway"
-            connection-factory="channelAMQConnectionFactory"
-            channel="toAMQChannel"
-            destination="requestQueue"/>
+	<int-jms:outbound-channel-adapter id="requestOutboundGateway"
+		connection-factory="channelAMQConnectionFactory" channel="toAMQRequestChannel"
+		destination="requestQueue" />
 
-    <bean id="requestQueue" class="org.apache.activemq.command.ActiveMQQueue">
-        <constructor-arg value="${channel.outboundQueueName}"/>
-    </bean>
+	<int-jms:outbound-channel-adapter id="responseOutboundGateway"
+		connection-factory="channelAMQConnectionFactory" channel="toAMQResponseChannel"
+		destination="responseQueue" />
+
+	<bean id="requestQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="${channel.outboundRequestQueue}" />
+	</bean>
+	<bean id="responseQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="${channel.outboundResponseQueue}" />
+	</bean>
 </beans>

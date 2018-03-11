@@ -42,8 +42,7 @@ public class InitOutboundConfigs {
 		Collection<PaymentChannelData> paymentChannelList = paymentChannelReadPlatformService
 				.retrieveAllPaymentChannelData();
 		for (PaymentChannelData paymentChannelData : paymentChannelList) {
-			amqChannelResolver.createPaymentChannel(paymentChannelData.getChannelName(),
-					paymentChannelData.getChannelBrokerEndpoint());
+			amqChannelResolver.createPaymentChannel(paymentChannelData);
 		}
 	}
 }

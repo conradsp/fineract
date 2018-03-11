@@ -19,6 +19,7 @@
 
 package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.PaymentGatewayConstants;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -31,16 +32,17 @@ import org.springframework.stereotype.Service;
 public class OutboundChannelHelper implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
-	public void sendMessage(String channelName, String message) {
+	public void sendMessage(String channelName, String channelUsage, String message) {
 		MessageChannel channel = applicationContext.getBean("routerChannel", MessageChannel.class);
 
-		Message<String> payload = MessageBuilder.withPayload(message).setHeader("channel-name", channelName).build();
+		Message<String> payload = MessageBuilder.withPayload(message).setHeader(PaymentGatewayConstants.CHANNEL_NAME_HEADER, channelName)
+				.setHeader(PaymentGatewayConstants.CHANNEL_USAGE_HEADER, channelUsage).build();
 
-        channel.send(payload);
+		channel.send(payload);
 	}
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 }
