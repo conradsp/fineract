@@ -27,6 +27,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.fineract.infrastructure.paymentgateway.gateway.config.OutboundChannelHelper;
 import org.apache.fineract.infrastructure.paymentgateway.gateway.util.HashUtil;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.PaymentGatewayConstants;
 import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
 import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentRepository;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
@@ -134,7 +135,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
 				final String jsonPayment = new Gson().toJson(paymentMap);
 				// send payment to queue
-				outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), jsonPayment);
+				outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_REQUEST_USAGE, jsonPayment);
 			}
 		}
 	}

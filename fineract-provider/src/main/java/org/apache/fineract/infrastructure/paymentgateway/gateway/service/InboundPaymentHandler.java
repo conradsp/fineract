@@ -22,13 +22,19 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.fineract.commands.domain.CommandWrapper;
+import org.apache.fineract.commands.service.CommandWrapperBuilder;
+import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.DateUtil;
 import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.data.GatewaySubscriberData;
 import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.service.GatewaySubscriberReadPlatformService;
 import org.apache.fineract.infrastructure.paymentgateway.payment.domain.Payment;
@@ -41,12 +47,14 @@ import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.P
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
+import org.apache.fineract.portfolio.loanaccount.service.LoanWritePlatformService;
 import org.springframework.messaging.Message;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 public class InboundPaymentHandler {
-    // TODO: handle proper logging
+	// TODO: handle proper logging
 	private static final String amountParameterName = "amount";
 	private static final String channelNameParameterName = "channelName";
 	private static final String externalRefIdParameterName = "externalRefId";
@@ -54,6 +62,7 @@ public class InboundPaymentHandler {
 	private static final String paymentRefParameterName = "paymentRef";
 	private static final String sourcePaymentAccountParameterName = "sourcePaymentAccount";
 	private static final String channelMessageParameterName = "message";
+	private static final String  paymentNoteParameterName = "paymentNote";
 	protected static final Logger logger = Logger.getLogger(InboundPaymentHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
 	private final PaymentChannelRepository paymentChannelRepository;
@@ -61,17 +70,20 @@ public class InboundPaymentHandler {
 	private final PaymentRepository paymentRepository;
 	private final GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService;
 	private final PlatformSecurityContext context;
+	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
 	public InboundPaymentHandler(FromJsonHelper fromJsonHelper, PaymentChannelRepository paymentChannelRepository,
 			ClientReadPlatformService clientReadPlatformService,
 			GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService,
-			PaymentRepository paymentRepository, PlatformSecurityContext context) {
+			PaymentRepository paymentRepository, PlatformSecurityContext context,
+			PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
 		this.fromJsonHelper = fromJsonHelper;
 		this.paymentChannelRepository = paymentChannelRepository;
 		this.clientReadPlatformService = clientReadPlatformService;
 		this.gatewaySubscriberReadPlatformService = gatewaySubscriberReadPlatformService;
 		this.paymentRepository = paymentRepository;
 		this.context = context;
+		this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 	}
 
 	public void handlePayment(Message<String> message) {
@@ -114,6 +126,11 @@ public class InboundPaymentHandler {
 		if (this.fromJsonHelper.parameterExists(channelMessageParameterName, jsonElement)) {
 			channelMessage = this.fromJsonHelper.extractStringNamed(channelMessageParameterName, jsonElement);
 		}
+		
+		String paymentNote = "";
+		if (this.fromJsonHelper.parameterExists(paymentNoteParameterName, jsonElement)) {
+			channelMessage = this.fromJsonHelper.extractStringNamed(paymentNoteParameterName, jsonElement);
+		}
 
 		paymentChannel = paymentChannelRepository.findByChannelName(channelName);
 		if (paymentChannel == null) {
@@ -146,6 +163,28 @@ public class InboundPaymentHandler {
 				channelMessage, paymentChannel, this.context.getAuthenticatedUserIfPresent(), date, date, date);
 		// Save Payment
 		payment = paymentRepository.save(payment);
+
+		switch (gatewaySubscriberData.getPaymentEntity()) {
+		case LOAN:
+            Map<String, String> requestMap = new HashMap<>();
+            requestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
+            requestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+            requestMap.put("transactionDate", DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
+            requestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
+            requestMap.put("paymentTypeId", String.valueOf(paymentChannel.getPaymentType().getId()));
+            requestMap.put("note", paymentNote);
+            
+            final String requestJson = new Gson().toJson(requestMap);
+            final CommandWrapperBuilder builder = new CommandWrapperBuilder().withJson(requestJson);
+            final CommandWrapper commandRequest = builder.loanRepaymentTransaction(payment.getEntityId()).build();
+            this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+			break;
+		case SAVINGS_ACCOUNT:
+
+			break;
+		default:
+			break;
+		}
 
 		logger.log(Level.FINE, "inbount_payment_saved " + payment.toString());
 	}

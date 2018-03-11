@@ -28,6 +28,7 @@ import javax.persistence.*;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
+import org.apache.fineract.portfolio.paymenttype.domain.PaymentType;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.joda.time.LocalDate;
 
@@ -57,6 +58,13 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	@Temporal(TemporalType.DATE)
 	private Date lastModified;
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	@JoinColumn(name = "payment_type_id", nullable = false)
+	private PaymentType paymentType;
+	@Column(name = "request_queue", length = 250, unique = true, nullable = false)
+	private String requestQueue;
+	@Column(name = "response_queue", length = 250, unique = true, nullable = false)
+	private String responseQueue;
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = true)
 	private AppUser createdBy;
 
@@ -64,7 +72,8 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	}
 
 	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType, boolean isActive,
-			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified) {
+			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified, String requestQueue,
+			String responseQueue) {
 		super();
 		this.channelName = channelName;
 		this.channelBrokerEndpoint = channelBrokerEndpoint;
@@ -72,13 +81,18 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		this.isActive = isActive;
 		this.phoneNumberDefaultRegion = phoneNumberDefaultRegion;
 		this.dateCreated = dateCreated.toDateTimeAtStartOfDay().toDate();
+		this.requestQueue = requestQueue;
+		this.responseQueue = responseQueue;
 	}
 
 	public PaymentChannel(String channelName, String channelBrokerEndpoint, int channelType, boolean isActive,
-			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified, final AppUser currentUser) {
+			String phoneNumberDefaultRegion, LocalDate dateCreated, LocalDate lastModified, PaymentType paymentType,
+			String requestQueue, String responseQueue, final AppUser currentUser) {
 		this(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion, dateCreated,
-				lastModified);
+				lastModified, requestQueue, responseQueue);
 		this.createdBy = currentUser;
+		this.paymentType = paymentType;
+		this.requestQueue = requestQueue;
 	}
 
 	public static PaymentChannel fromJson(final JsonCommand command) {
@@ -90,9 +104,11 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 		final String phoneNumberDefaultRegion = command.stringValueOfParameterNamed("phoneNumberDefaultRegion");
 		final LocalDate dateCreated = command.localDateValueOfParameterNamed("dateCreated");
 		final LocalDate lastModified = command.localDateValueOfParameterNamed("lastModified");
+		final String requestQueue = command.stringValueOfParameterNamed("requestQueue");
+		final String responseQueue = command.stringValueOfParameterNamed("responseQueue");
 
 		return new PaymentChannel(channelName, channelBrokerEndpoint, channelType, isActive, phoneNumberDefaultRegion,
-				dateCreated, lastModified);
+				dateCreated, lastModified, requestQueue, responseQueue);
 	}
 
 	@PrePersist
@@ -197,6 +213,30 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public String getRequestQueue() {
+		return requestQueue;
+	}
+
+	public void setRequestQueue(String requestQueue) {
+		this.requestQueue = requestQueue;
+	}
+
+	public String getResponseQueue() {
+		return responseQueue;
+	}
+
+	public void setResponseQueue(String responseQueue) {
+		this.responseQueue = responseQueue;
 	}
 
 	public AppUser getCreatedBy() {

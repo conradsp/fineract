@@ -32,7 +32,7 @@ import java.util.Date;
 public class DateUtil {
 
     public final static String DEFAULT_DATE_FORMAT = "dd-MM-yyyy hh:mm:ss";
-    public final static String BEYONIC_DATE_FORMAT ="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    public final static String SHORT_DATE_FORMAT ="yyyy-MM-dd";
 
     public static String formatDate(Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);

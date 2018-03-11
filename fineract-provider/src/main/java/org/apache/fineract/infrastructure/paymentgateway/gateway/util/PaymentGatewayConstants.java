@@ -20,4 +20,7 @@ package org.apache.fineract.infrastructure.paymentgateway.gateway.util;
 
 public class PaymentGatewayConstants {
     public static final String CHANNEL_NAME_HEADER = "channel-name";
+    public static final String CHANNEL_USAGE_HEADER = "channel-usage";
+    public static final String CHANNEL_REQUEST_USAGE = "request";
+    public static final String CHANNEL_RESPONSE_USAGE = "response";
 }
