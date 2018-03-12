@@ -25,55 +25,60 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum PaymentEntity {
 
-    INVALID_ID(0, "invalid"),
-    SAVINGS_ACCOUNT(1, "SAVINGS_ACCOUNT"),
-    LOAN(2, "LOAN");
+	INVALID_ID(0, "invalid"), SAVINGS_ACCOUNT(1, "SAVINGS_ACCOUNT"), LOAN(2, "LOAN"), FIXED_SAVINGS_ACCOUNT(3,
+			"SAVINGS_ACCOUNT");
 
-    private final Integer value;
-    private final String name;
+	private final Integer value;
+	private final String name;
 
-    private PaymentEntity(final Integer value, final String name) {
-        this.value = value;
-        this.name = name;
-    }
+	private PaymentEntity(final Integer value, final String name) {
+		this.value = value;
+		this.name = name;
+	}
 
-    public static PaymentEntity fromInt(final Integer typeValue) {
-        PaymentEntity enumeration = PaymentEntity.INVALID_ID;
-        switch (typeValue) {
-            case 1:
-                enumeration = PaymentEntity.SAVINGS_ACCOUNT;
-                break;
-            case 2:
-                enumeration = PaymentEntity.LOAN;
-                break;
-        }
+	public static PaymentEntity fromInt(final Integer typeValue) {
+		PaymentEntity enumeration = PaymentEntity.INVALID_ID;
+		switch (typeValue) {
+		case 1:
+			enumeration = PaymentEntity.SAVINGS_ACCOUNT;
+			break;
+		case 2:
+			enumeration = PaymentEntity.LOAN;
+			break;
+		case 3:
+			enumeration = PaymentEntity.FIXED_SAVINGS_ACCOUNT;
+			break;
+		}
 
-        return enumeration;
-    }
+		return enumeration;
+	}
 
-    @JsonValue
-    public Integer getValue() {
-        return this.value;
-    }
+	@JsonValue
+	public Integer getValue() {
+		return this.value;
+	}
 
-    public String getName() {
-        return this.name;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public boolean hasTypeOf(final PaymentEntity type) {
-        return this.value.equals(type.getValue());
-    }
+	public boolean hasTypeOf(final PaymentEntity type) {
+		return this.value.equals(type.getValue());
+	}
 
-    public boolean isInvalId() {
-        return this.value.equals(PaymentEntity.INVALID_ID.getValue());
-    }
+	public boolean isInvalId() {
+		return this.value.equals(PaymentEntity.INVALID_ID.getValue());
+	}
 
-    public boolean isSavingsAccount() {
-        return this.value.equals(PaymentEntity.SAVINGS_ACCOUNT.getValue());
-    }
+	public boolean isSavingsAccount() {
+		return this.value.equals(PaymentEntity.SAVINGS_ACCOUNT.getValue());
+	}
 
-    public boolean isLoan() {
-        return this.value.equals(PaymentEntity.LOAN.getValue());
-    }
+	public boolean isLoan() {
+		return this.value.equals(PaymentEntity.LOAN.getValue());
+	}
 
+	public boolean isFixedSavingsAccount() {
+		return this.value.equals(PaymentEntity.FIXED_SAVINGS_ACCOUNT.getValue());
+	}
 }

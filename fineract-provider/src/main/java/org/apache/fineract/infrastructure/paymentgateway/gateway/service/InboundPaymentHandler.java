@@ -62,7 +62,7 @@ public class InboundPaymentHandler {
 	private static final String paymentRefParameterName = "paymentRef";
 	private static final String sourcePaymentAccountParameterName = "sourcePaymentAccount";
 	private static final String channelMessageParameterName = "message";
-	private static final String  paymentNoteParameterName = "paymentNote";
+	private static final String paymentNoteParameterName = "paymentNote";
 	protected static final Logger logger = Logger.getLogger(InboundPaymentHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
 	private final PaymentChannelRepository paymentChannelRepository;
@@ -126,7 +126,7 @@ public class InboundPaymentHandler {
 		if (this.fromJsonHelper.parameterExists(channelMessageParameterName, jsonElement)) {
 			channelMessage = this.fromJsonHelper.extractStringNamed(channelMessageParameterName, jsonElement);
 		}
-		
+
 		String paymentNote = "";
 		if (this.fromJsonHelper.parameterExists(paymentNoteParameterName, jsonElement)) {
 			channelMessage = this.fromJsonHelper.extractStringNamed(paymentNoteParameterName, jsonElement);
@@ -163,26 +163,54 @@ public class InboundPaymentHandler {
 				channelMessage, paymentChannel, this.context.getAuthenticatedUserIfPresent(), date, date, date);
 		// Save Payment
 		payment = paymentRepository.save(payment);
+		
+		 CommandWrapperBuilder builder = new CommandWrapperBuilder();
 
 		switch (gatewaySubscriberData.getPaymentEntity()) {
-		case LOAN:
-            Map<String, String> requestMap = new HashMap<>();
-            requestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
-            requestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
-            requestMap.put("transactionDate", DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
-            requestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
-            requestMap.put("paymentTypeId", String.valueOf(paymentChannel.getPaymentType().getId()));
-            requestMap.put("note", paymentNote);
-            
-            final String requestJson = new Gson().toJson(requestMap);
-            final CommandWrapperBuilder builder = new CommandWrapperBuilder().withJson(requestJson);
-            final CommandWrapper commandRequest = builder.loanRepaymentTransaction(payment.getEntityId()).build();
-            this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-			break;
 		case SAVINGS_ACCOUNT:
+			Map<String, String> savingsAccountequestMap = new HashMap<>();
+			savingsAccountequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
+			savingsAccountequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+			savingsAccountequestMap.put("transactionDate",
+					DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
+			savingsAccountequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
+			savingsAccountequestMap.put("paymentTypeId", String.valueOf(paymentChannel.getPaymentType().getId()));
+			savingsAccountequestMap.put("note", paymentNote);
+			
+			final String savingsAccountequestJson = new Gson().toJson(savingsAccountequestMap);
+			builder.withJson(savingsAccountequestJson);
+			this.commandsSourceWritePlatformService.logCommandSource(builder.savingsAccountDeposit(payment.getEntityId()).build());
+			break;
+		case LOAN:
+			Map<String, String> loanRequestMap = new HashMap<>();
+			loanRequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
+			loanRequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+			loanRequestMap.put("transactionDate",
+					DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
+			loanRequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
+			loanRequestMap.put("paymentTypeId", String.valueOf(paymentChannel.getPaymentType().getId()));
+			loanRequestMap.put("note", paymentNote);
 
+			final String loanRequestJson = new Gson().toJson(loanRequestMap);
+			builder.withJson(loanRequestJson);
+			this.commandsSourceWritePlatformService.logCommandSource(builder.loanRepaymentTransaction(payment.getEntityId()).build());
+			break;
+		case FIXED_SAVINGS_ACCOUNT:
+			Map<String, String> fixedSavingsAccountequestMap = new HashMap<>();
+			fixedSavingsAccountequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
+			fixedSavingsAccountequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+			fixedSavingsAccountequestMap.put("transactionDate",
+					DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
+			fixedSavingsAccountequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
+			fixedSavingsAccountequestMap.put("paymentTypeId", String.valueOf(paymentChannel.getPaymentType().getId()));
+			fixedSavingsAccountequestMap.put("note", paymentNote);
+			
+			final String fixedSavingsAccountequestJson = new Gson().toJson(fixedSavingsAccountequestMap);
+			builder.withJson(fixedSavingsAccountequestJson);
+            this.commandsSourceWritePlatformService.logCommandSource(builder.fixedDepositAccountDeposit(payment.getEntityId()).build());
 			break;
 		default:
+			errors.add("Invalid payment entity");
 			break;
 		}
 
