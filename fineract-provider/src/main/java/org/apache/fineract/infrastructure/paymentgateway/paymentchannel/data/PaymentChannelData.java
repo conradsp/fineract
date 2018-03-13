@@ -39,7 +39,7 @@ public class PaymentChannelData implements Comparable<PaymentChannelData>, Seria
 	private String phoneNumberDefaultRegion;
 	private Date dateCreated;
 	private Date lastModified;
-	private PaymentType paymentType;
+	private Long paymentTypeId;
 	private String requestQueue;
 	private String responseQueue;
 
@@ -53,7 +53,7 @@ public class PaymentChannelData implements Comparable<PaymentChannelData>, Seria
 		this.phoneNumberDefaultRegion = paymentChannel.getPhoneNumberDefaultRegion();
 		this.dateCreated = paymentChannel.getDateCreated();
 		this.lastModified = paymentChannel.getLastModified();
-		this.paymentType = paymentChannel.getPaymentType();
+		this.paymentTypeId = paymentChannel.getPaymentType().getId();
 		this.requestQueue = paymentChannel.getRequestQueue();
 		this.responseQueue = paymentChannel.getResponseQueue();
 	}
@@ -126,12 +126,12 @@ public class PaymentChannelData implements Comparable<PaymentChannelData>, Seria
 		this.lastModified = lastModified;
 	}
 
-	public PaymentType getPaymentType() {
-		return paymentType;
+	public Long getPaymentTypeId() {
+		return paymentTypeId;
 	}
 
-	public void setPaymentType(PaymentType paymentType) {
-		this.paymentType = paymentType;
+	public void setPaymentTypeId(Long paymentTypeId) {
+		this.paymentTypeId = paymentTypeId;
 	}
 
 	public String getRequestQueue() {

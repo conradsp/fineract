@@ -28,6 +28,8 @@ import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.P
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.sms.service.SmsWritePlatformServiceJpaRepositoryImpl;
+import org.apache.fineract.portfolio.paymenttype.domain.PaymentType;
+import org.apache.fineract.portfolio.paymenttype.domain.PaymentTypeRepository;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,19 +43,26 @@ public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWri
 	private final static Logger logger = LoggerFactory.getLogger(PaymentChannelWritePlatformServiceImpl.class);
 	private final PaymentChannelRepository paymentChannelRepository;
 	private final PlatformSecurityContext context;
+	private final PaymentTypeRepository paymentTypeRepository;
 
 	@Autowired
 	public PaymentChannelWritePlatformServiceImpl(PaymentChannelRepository paymentChannelRepository,
-			PlatformSecurityContext context) {
+			PlatformSecurityContext context, PaymentTypeRepository paymentTypeRepository) {
 		super();
 		this.paymentChannelRepository = paymentChannelRepository;
 		this.context = context;
+		this.paymentTypeRepository = paymentTypeRepository;
 	}
 
 	@Override
 	public CommandProcessingResult create(JsonCommand command) {
 		try {
 			PaymentChannel paymentChannel = PaymentChannel.fromJson(command);
+			
+			final Long paymentTypeId = command.longValueOfParameterNamed("paymentTypeId");
+			PaymentType paymentType = paymentTypeRepository.findOne(paymentTypeId);
+			
+			paymentChannel.setPaymentType(paymentType);
 			paymentChannel.setCreatedBy(this.context.authenticatedUser());
 			paymentChannel = paymentChannelRepository.save(paymentChannel);
 			return new CommandProcessingResultBuilder() //
