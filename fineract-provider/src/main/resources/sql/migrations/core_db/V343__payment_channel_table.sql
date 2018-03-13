@@ -26,12 +26,14 @@ CREATE TABLE IF NOT EXISTS `payment_channel` (
   `phone_number_default_region` VARCHAR(10) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
-  `payment_type_id` BIGINT(20) NOT NULL,
+  `payment_type_id` INT(11) NOT NULL,
   `request_queue`  VARCHAR(250) NOT NULL,
   `response_queue` VARCHAR(250) NOT NULL,
   `user_id` BIGINT(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `unique_channel_name` (`channel_name` ASC),
+  UNIQUE INDEX `unique_request_queue` (`request_queue` ASC),
+  UNIQUE INDEX `unique_response_queue` (`response_queue` ASC),
   CONSTRAINT `fk_payment_channel_created_by_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`),
   CONSTRAINT `fk_payment_channel_payment_type` FOREIGN KEY (`payment_type_id`) REFERENCES `m_payment_type` (`id`)
 )ENGINE = InnoDB;

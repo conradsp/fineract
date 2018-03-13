@@ -27,6 +27,6 @@ CREATE TABLE IF NOT EXISTS `payment_gateway_subscriber` (
   `last_modified` datetime DEFAULT NULL,
   `user_id` BIGINT(20) NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `payment_gateway_subscriber_created_by_m_appuser` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
+  CONSTRAINT `payment_gateway_subscriber_client` FOREIGN KEY (`client_id`) REFERENCES `m_client` (`id`),
   CONSTRAINT `payment_gateway_subscriber_created_by_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`)
 )ENGINE = InnoDB;
