@@ -28,13 +28,17 @@ import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.domai
 import org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.domain.GatewaySubscriberRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GatewaySubscriberReadPlatformServiceImpl implements GatewaySubscriberReadPlatformService {
 
 	private final static Logger logger = LoggerFactory.getLogger(GatewaySubscriberReadPlatformServiceImpl.class);
 
 	private final GatewaySubscriberRepository gatewaySubscriberRepository;
 
+	@Autowired
 	public GatewaySubscriberReadPlatformServiceImpl(GatewaySubscriberRepository gatewaySubscriberRepository) {
 		super();
 		this.gatewaySubscriberRepository = gatewaySubscriberRepository;

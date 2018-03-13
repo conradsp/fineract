@@ -64,10 +64,12 @@
 		class="org.apache.fineract.infrastructure.paymentgateway.gateway.service.InboundPaymentHandler">
 		<constructor-arg ref="fromJsonHelper" />
 		<constructor-arg ref="paymentChannelRepository" />
-		<constructor-arg ref="clientReadPlatformService" />
+		<constructor-arg ref="clientReadPlatformServiceImpl" />
 		<constructor-arg ref="gatewaySubscriberReadPlatformService" />
 		<constructor-arg ref="paymentRepository" />
-		<constructor-arg ref="context" />
-		<constructor-arg ref="commandsSourceWritePlatformService" />
+		<constructor-arg ref="springSecurityPlatformSecurityContext" />
+		<constructor-arg ref="portfolioCommandSourceWritePlatformServiceImpl" />
 	</bean>
+	
+	<bean id="gatewaySubscriberReadPlatformService" class="org.apache.fineract.infrastructure.paymentgateway.gatewaysubscriber.service.GatewaySubscriberReadPlatformServiceImpl"></bean>
 </beans>

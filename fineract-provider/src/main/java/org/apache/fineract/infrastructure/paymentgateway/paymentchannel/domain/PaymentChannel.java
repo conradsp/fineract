@@ -34,7 +34,9 @@ import org.joda.time.LocalDate;
 
 @Entity
 @Table(name = "payment_channel", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name") })
+		@UniqueConstraint(columnNames = { "channel_name" }, name = "unique_channel_name") ,
+		@UniqueConstraint(columnNames = { "request_queue" }, name = "unique_request_queue"),
+		@UniqueConstraint(columnNames = { "response_queue" }, name = "unique_response_queue")})
 public class PaymentChannel extends AbstractPersistableCustom<Long> {
 
 	private static final long serialVersionUID = -7898973749472818660L;
