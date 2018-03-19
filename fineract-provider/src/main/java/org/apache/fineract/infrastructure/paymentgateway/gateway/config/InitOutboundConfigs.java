@@ -20,29 +20,44 @@
 package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
+import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelReadPlatformService;
+import org.apache.fineract.infrastructure.security.service.TenantDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InitOutboundConfigs {
+	private TenantDetailsService tenantDetailsService;
+
 	@Autowired
 	@Qualifier("paymentChannelResolver")
 	private DynamicAMQChannelResolver amqChannelResolver;
 	@Autowired
 	private PaymentChannelReadPlatformService paymentChannelReadPlatformService;
 
+	@Autowired
+	public void setTenantDetailsService(TenantDetailsService tenantDetailsService) {
+		this.tenantDetailsService = tenantDetailsService;
+	}
+
 	@PostConstruct
 	public void init() {
-		Collection<PaymentChannelData> paymentChannelList = paymentChannelReadPlatformService
-				.retrieveAllPaymentChannelData();
-		for (PaymentChannelData paymentChannelData : paymentChannelList) {
-			amqChannelResolver.createPaymentChannel(paymentChannelData);
+		final List<FineractPlatformTenant> allTenants = this.tenantDetailsService.findAllTenants();
+		for (final FineractPlatformTenant tenant : allTenants) {
+			ThreadLocalContextUtil.setTenant(tenant);
+			Collection<PaymentChannelData> paymentChannelList = paymentChannelReadPlatformService
+					.retrieveAllPaymentChannelData();
+			for (PaymentChannelData paymentChannelData : paymentChannelList) {
+				amqChannelResolver.createPaymentChannel(paymentChannelData);
+			}
 		}
 	}
 }

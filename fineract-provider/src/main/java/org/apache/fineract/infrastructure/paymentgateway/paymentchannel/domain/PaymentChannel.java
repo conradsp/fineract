@@ -59,7 +59,7 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 	@Column(name = "last_modified", nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date lastModified;
-	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "payment_type_id", nullable = false)
 	private PaymentType paymentType;
 	@Column(name = "request_queue", length = 250, unique = true, nullable = false)
