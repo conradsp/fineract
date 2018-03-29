@@ -82,6 +82,10 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 				BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_UNDO_DISBURSAL, new OnLoanUndoDisbursal());
 		this.businessEventNotifierService.addBusinessEventPostListners(
 				BusinessEventNotificationConstants.BUSINESS_EVENTS.LOAN_MAKE_REPAYMENT, new OnLoanRepayment());
+		this.businessEventNotifierService.addBusinessEventPostListners(
+				BusinessEventNotificationConstants.BUSINESS_EVENTS.SAVINGS_WITHDRAWAL, new OnSavingsWithdrawl());
+		this.businessEventNotifierService.addBusinessEventPostListners(
+				BusinessEventNotificationConstants.BUSINESS_EVENTS.SAVINGS_DEPOSIT, new OnSavingsDeposit());
 	}
 
 	private abstract class PaymentGatewayBusinessEventAdapter implements BusinessEventListner {
@@ -150,6 +154,24 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 	}
 
 	private class OnLoanRepayment extends PaymentGatewayBusinessEventAdapter {
+
+		@Override
+		public void businessEventWasExecuted(
+				Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
+			// TODO handle businessEventWasExecuted
+		}
+	}
+
+	private class OnSavingsWithdrawl extends PaymentGatewayBusinessEventAdapter {
+
+		@Override
+		public void businessEventWasExecuted(
+				Map<BusinessEventNotificationConstants.BUSINESS_ENTITY, Object> businessEventEntity) {
+			// TODO handle businessEventWasExecuted
+		}
+	}
+
+	private class OnSavingsDeposit extends PaymentGatewayBusinessEventAdapter {
 
 		@Override
 		public void businessEventWasExecuted(

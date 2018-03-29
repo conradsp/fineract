@@ -31,7 +31,7 @@
 		class="org.springframework.jms.connection.CachingConnectionFactory">
 		<property name="targetConnectionFactory">
 			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
-				<property name="brokerURL" value="tcp://localhost:32768" />
+				<property name="brokerURL" value="tcp://localhost:61616" />
 				<property name="clientID" value="mifos-service" />
 			</bean>
 		</property>
