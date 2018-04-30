@@ -157,6 +157,18 @@ public class PaymentChannel extends AbstractPersistableCustom<Long> {
 			actualChanges.put(phoneNumberDefaultRegionParamName, newValue);
 			this.phoneNumberDefaultRegion = newValue;
 		}
+		final String requestQueueParamName = "requestQueue";
+		if (command.isChangeInStringParameterNamed(requestQueueParamName, this.requestQueue)) {
+			final String newValue = command.stringValueOfParameterNamed(requestQueueParamName);
+			actualChanges.put(requestQueueParamName, newValue);
+			this.requestQueue = newValue;
+		}
+		final String responseQueueParamName = "responseQueue";
+		if (command.isChangeInStringParameterNamed(responseQueueParamName, this.responseQueue)) {
+			final String newValue = command.stringValueOfParameterNamed(responseQueueParamName);
+			actualChanges.put(responseQueue, newValue);
+			this.responseQueue = newValue;
+		}
 
 		return actualChanges;
 	}

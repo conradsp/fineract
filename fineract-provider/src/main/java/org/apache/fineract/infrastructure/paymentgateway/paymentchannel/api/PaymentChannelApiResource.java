@@ -118,12 +118,12 @@ public class PaymentChannelApiResource {
 	}
 
     @PUT
-    @Path("{resourceId}")
+    @Path("{paymentChannelId}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-    public String update(@PathParam("resourceId") final Long resourceId, final String apiRequestBodyAsJson) {
+    public String update(@PathParam("paymentChannelId") final Long paymentChannelId, final String apiRequestBodyAsJson) {
 
-        final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentChannel(resourceId).withJson(apiRequestBodyAsJson).build();
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentChannel(paymentChannelId).withJson(apiRequestBodyAsJson).build();
 
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 
@@ -131,10 +131,10 @@ public class PaymentChannelApiResource {
     }
 
     @DELETE
-    @Path("{resourceId}")
-    public String delete(@PathParam("resourceId") final Long resourceId) {
+    @Path("{paymentChannelId}")
+    public String delete(@PathParam("paymentChannelId") final Long paymentChannelId) {
 
-        final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePaymentChannel(resourceId).build();
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePaymentChannel(paymentChannelId).build();
 
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 

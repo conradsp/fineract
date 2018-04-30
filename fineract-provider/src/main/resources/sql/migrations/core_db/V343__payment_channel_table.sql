@@ -37,3 +37,9 @@ CREATE TABLE IF NOT EXISTS `payment_channel` (
   CONSTRAINT `fk_payment_channel_created_by_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`),
   CONSTRAINT `fk_payment_channel_payment_type` FOREIGN KEY (`payment_type_id`) REFERENCES `m_payment_type` (`id`)
 )ENGINE = InnoDB;
+
+INSERT INTO `m_permission` (`grouping`, `code`, `entity_name`, `action_name`, `can_maker_checker`) VALUES ('portfolio', 'CREATE_PAYMENTCHANNEL', 'PAYMENTCHANNEL', 'CREATE', 0);
+
+INSERT INTO `m_permission` (`grouping`, `code`, `entity_name`, `action_name`, `can_maker_checker`) VALUES ('portfolio', 'UPDATE_PAYMENTCHANNEL', 'PAYMENTCHANNEL', 'UPDATE', 0);
+
+INSERT INTO `m_permission` (`grouping`, `code`, `entity_name`, `action_name`, `can_maker_checker`) VALUES ('portfolio', 'DELETE_PAYMENTCHANNEL', 'PAYMENTCHANNEL', 'DELETE', 0);

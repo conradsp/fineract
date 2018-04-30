@@ -610,4 +610,6 @@ final public class ClientData implements Comparable<ClientData> {
     public Boolean getIsAddressEnabled() {
 		return this.isAddressEnabled;
 	}
+
+    public String getMobileNo() { return this.mobileNo; }
 }

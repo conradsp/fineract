@@ -23,7 +23,7 @@ import org.apache.fineract.commands.annotation.CommandType;
 import org.apache.fineract.commands.handler.NewCommandSourceHandler;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
-import org.apache.fineract.infrastructure.sms.service.SmsWritePlatformService;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @CommandType(entity = "PAYMENTCHANNEL", action = "UPDATE")
 public class UpdatePaymentChannelCommandHandler  implements NewCommandSourceHandler {
-    private final SmsWritePlatformService writePlatformService;
+    private final PaymentChannelWritePlatformService writePlatformService;
 
     @Autowired
-    public UpdatePaymentChannelCommandHandler(final SmsWritePlatformService writePlatformService) {
+    public UpdatePaymentChannelCommandHandler(final PaymentChannelWritePlatformService writePlatformService) {
         this.writePlatformService = writePlatformService;
     }
 

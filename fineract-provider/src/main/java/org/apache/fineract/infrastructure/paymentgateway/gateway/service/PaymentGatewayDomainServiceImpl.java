@@ -34,7 +34,10 @@ import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDi
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
+import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelType;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.portfolio.client.data.ClientData;
+import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants;
 import org.apache.fineract.portfolio.common.service.BusinessEventListner;
 import org.apache.fineract.portfolio.common.service.BusinessEventNotifierService;
@@ -59,16 +62,18 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 	private final OutboundChannelHelper outboundChannelHelper;
 	private final PlatformSecurityContext securityContext;
 	private final PaymentRepository paymentRepository;
+	private final ClientReadPlatformService clientReadPlatformService;
 	private final HashUtil hashUtil;
 
 	@Autowired
 	public PaymentGatewayDomainServiceImpl(final BusinessEventNotifierService businessEventNotifierService,
 			OutboundChannelHelper outboundChannelHelper, PlatformSecurityContext securityContext,
-			PaymentRepository paymentRepository, HashUtil hashUtil) {
+			PaymentRepository paymentRepository, final ClientReadPlatformService clientReadPlatformService, HashUtil hashUtil) {
 		this.businessEventNotifierService = businessEventNotifierService;
 		this.outboundChannelHelper = outboundChannelHelper;
 		this.securityContext = securityContext;
 		this.paymentRepository = paymentRepository;
+		this.clientReadPlatformService = clientReadPlatformService;
 		this.hashUtil = hashUtil;
 	}
 
@@ -124,22 +129,34 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
 				loanTransaction = filteredLoanTransactions.get(0);
 				PaymentDetail paymentDetail = loanTransaction.getPaymentDetail();
-				PaymentChannel paymentChannel = paymentDetail.getPaymentChannel();
+				if (paymentDetail != null) {
+					PaymentChannel paymentChannel = paymentDetail.getPaymentChannel();
 
-				Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN,
-						loan.getAccountNumber(), paymentDetail.getAccountNumber(), loanTransaction.getAmount(loan.getCurrency()).getAmount(),
-						PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.OUTGOING,
-						paymentChannel, securityContext.getAuthenticatedUserIfPresent());
+					if (paymentChannel != null) {
+						String destAccount = paymentDetail.getAccountNumber();
 
-				payment = paymentRepository.save(payment);
-				Map<String, Object> paymentMap = new HashMap<>();
-				paymentMap.put("transactionReference", hashUtil.hashEncodeId(payment.getId()));
-				paymentMap.put("paymentAccount", payment.getPaymentDestinationAccount());
-				paymentMap.put("transactionAmount", payment.getTransactionAmount());
+						// If the payment channel is a mobile money channel, use the mobile number as the destination account
+						//  Unless the user overrides it in the disbursement screen
+						if (PaymentChannelType.fromInt(paymentChannel.getChannelType()).isMobileMoneyChannel() && (paymentDetail.getAccountNumber() == "")) {
+							ClientData client = clientReadPlatformService.retrieveOne(loan.getClientId());
+							destAccount = client.getMobileNo();
+						}
+						Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN,
+								loan.getAccountNumber(), destAccount, loanTransaction.getAmount(loan.getCurrency()).getAmount(),
+								PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.OUTGOING,
+								paymentChannel, securityContext.getAuthenticatedUserIfPresent());
 
-				final String jsonPayment = new Gson().toJson(paymentMap);
-				// send payment to queue
-				outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_REQUEST_USAGE, jsonPayment);
+						payment = paymentRepository.save(payment);
+						Map<String, Object> paymentMap = new HashMap<>();
+						paymentMap.put("transactionReference", hashUtil.hashEncodeId(payment.getId()));
+						paymentMap.put("paymentAccount", payment.getPaymentDestinationAccount());
+						paymentMap.put("transactionAmount", payment.getTransactionAmount());
+
+						final String jsonPayment = new Gson().toJson(paymentMap);
+						// send payment to queue
+						outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_REQUEST_USAGE, jsonPayment);
+					}
+				}
 			}
 		}
 	}
