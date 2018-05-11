@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.fineract.commands.domain.CommandWrapper;
 import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
@@ -47,13 +46,15 @@ import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.P
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
-import org.apache.fineract.portfolio.loanaccount.service.LoanWritePlatformService;
-import org.springframework.messaging.Message;
 
+import javax.jms.Message;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class InboundPaymentHandler {
+@Component
+public class InboundMessageHandler {
 	// TODO: handle proper logging
 	private static final String amountParameterName = "amount";
 	private static final String channelNameParameterName = "channelName";
@@ -63,7 +64,7 @@ public class InboundPaymentHandler {
 	private static final String sourcePaymentAccountParameterName = "sourcePaymentAccount";
 	private static final String channelMessageParameterName = "message";
 	private static final String paymentNoteParameterName = "paymentNote";
-	protected static final Logger logger = Logger.getLogger(InboundPaymentHandler.class.getName());
+	protected static final Logger logger = Logger.getLogger(InboundMessageHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
 	private final PaymentChannelRepository paymentChannelRepository;
 	private final ClientReadPlatformService clientReadPlatformService;
@@ -72,11 +73,12 @@ public class InboundPaymentHandler {
 	private final PlatformSecurityContext context;
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
-	public InboundPaymentHandler(FromJsonHelper fromJsonHelper, PaymentChannelRepository paymentChannelRepository,
-			ClientReadPlatformService clientReadPlatformService,
-			GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService,
-			PaymentRepository paymentRepository, PlatformSecurityContext context,
-			PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
+	@Autowired
+	public InboundMessageHandler(FromJsonHelper fromJsonHelper, PaymentChannelRepository paymentChannelRepository,
+								 ClientReadPlatformService clientReadPlatformService,
+								 GatewaySubscriberReadPlatformService gatewaySubscriberReadPlatformService,
+								 PaymentRepository paymentRepository, PlatformSecurityContext context,
+								 PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
 		this.fromJsonHelper = fromJsonHelper;
 		this.paymentChannelRepository = paymentChannelRepository;
 		this.clientReadPlatformService = clientReadPlatformService;
@@ -86,11 +88,10 @@ public class InboundPaymentHandler {
 		this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 	}
 
-	public void handlePayment(Message<String> message) {
+	public void handlePayment(Message message) {
 		logger.info("inbount_payment_start " + message.toString());
-		String payload = message.getPayload();
 
-		JsonElement jsonElement = fromJsonHelper.parse(payload);
+		JsonElement jsonElement = fromJsonHelper.parse(message.toString());
 		final Locale locale = this.fromJsonHelper.extractLocaleParameter(jsonElement.getAsJsonObject());
 		PaymentChannel paymentChannel = null;
 		List<String> errors = new ArrayList<>();
