@@ -55,6 +55,6 @@ public class GatewayEventListener implements MessageListener {
 
     @Override
     public void onMessage(Message message)  {
-        messageHandler.handlePayment(message.content.data);
+        messageHandler.handlePayment(message);
     }
 }
