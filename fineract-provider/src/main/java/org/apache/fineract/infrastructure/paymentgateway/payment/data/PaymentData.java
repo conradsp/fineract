@@ -34,7 +34,7 @@ public class PaymentData implements Comparable<PaymentData>, Serializable {
 	private static final long serialVersionUID = -8065085223208148718L;
 	private Long id;
 	private Long clientId;
-	private Long entityId;
+	private Long accountId;
 	/**
 	 * A value from {@link PaymentEntity}.
 	 */
@@ -57,7 +57,7 @@ public class PaymentData implements Comparable<PaymentData>, Serializable {
 	public PaymentData(Payment payment) {
 		this.id = payment.getId();
 		this.clientId = payment.getClientId();
-		this.entityId = payment.getEntityId();
+		this.accountId = payment.getAccountId();
 		this.paymentEntity = payment.getPaymentEntity();
 		this.paymentSourceAccount = payment.getPaymentSourceAccount();
 		this.paymentDestinationAccount = payment.getPaymentDestinationAccount();
@@ -80,12 +80,12 @@ public class PaymentData implements Comparable<PaymentData>, Serializable {
 		this.clientId = clientId;
 	}
 
-	public Long getEntityId() {
-		return entityId;
+	public Long getAccountId() {
+		return accountId;
 	}
 
-	public void setEntityId(Long entityId) {
-		this.entityId = entityId;
+	public void setAccountId(Long accountId) {
+		this.accountId = accountId;
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class PaymentData implements Comparable<PaymentData>, Serializable {
 	
 	@Override
 	public String toString() {
-		return "PaymentData [id=" + id + ", clientId=" + clientId + ", entityId=" + entityId + ", paymentEntity="
+		return "PaymentData [id=" + id + ", clientId=" + clientId + ", accountId=" + accountId + ", paymentEntity="
 				+ paymentEntity + ", paymentSourceAccount=" + paymentSourceAccount + ", paymentDestinationAccount="
 				+ paymentDestinationAccount + ", transactionAmount=" + transactionAmount + ", paymentStatus="
 				+ paymentStatus + ", paymentDirection=" + paymentDirection + ", channelRefId=" + channelRefId

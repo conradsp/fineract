@@ -19,6 +19,7 @@
 package org.apache.fineract.infrastructure.paymentgateway.gateway.service;
 
 import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
+import org.apache.fineract.infrastructure.core.exception.InvalidJsonException;
 import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
 import org.apache.fineract.infrastructure.security.service.BasicAuthTenantDetailsService;
 import org.apache.fineract.infrastructure.paymentgateway.gateway.service.InboundMessageHandler;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
 import javax.jms.Message;
+import javax.jms.BytesMessage;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.util.ArrayList;
@@ -55,6 +57,19 @@ public class GatewayEventListener implements MessageListener {
 
     @Override
     public void onMessage(Message message)  {
-        messageHandler.handlePayment(message);
+        if (message instanceof BytesMessage) {
+            try {
+                long length = ((BytesMessage) message).getBodyLength();
+                byte[] content = new byte[(int)length];
+                int bytesRead= ((BytesMessage)message).readBytes(content, (int)length);
+                String s = new String(content);
+                messageHandler.handlePayment(s);
+            } catch(Exception E) {
+                throw new InvalidJsonException();
+            }
+
+        } else {
+            throw new IllegalArgumentException("Message Error");
+        }
     }
 }

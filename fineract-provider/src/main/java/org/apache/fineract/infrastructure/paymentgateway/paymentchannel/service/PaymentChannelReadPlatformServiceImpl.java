@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.fineract.infrastructure.core.service.RoutingDataSource;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
@@ -32,11 +33,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentChannelReadPlatformServiceImpl implements PaymentChannelReadPlatformService{
 	
-	private final PaymentChannelRepository paymentChannelRepository;	
+	private final PaymentChannelRepository paymentChannelRepository;
+	private final RoutingDataSource dataSource;
 	
 	@Autowired
-	public PaymentChannelReadPlatformServiceImpl(PaymentChannelRepository paymentChannelRepository) {
-		super();
+	public PaymentChannelReadPlatformServiceImpl(final RoutingDataSource dataSource,
+												 PaymentChannelRepository paymentChannelRepository) {
+		this.dataSource = dataSource;
 		this.paymentChannelRepository = paymentChannelRepository;
 	}
 
@@ -58,7 +61,7 @@ public class PaymentChannelReadPlatformServiceImpl implements PaymentChannelRead
 	}
 
 	@Override
-	public PaymentChannelData retrievePaymentChannelDataByChannelName(String channelName) {
+	public PaymentChannelData findByChannelName(String channelName) {
 		PaymentChannel paymentChannel = paymentChannelRepository.findByChannelName(channelName);
 		return new PaymentChannelData(paymentChannel);
 	}

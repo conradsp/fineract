@@ -20,7 +20,7 @@
 CREATE TABLE IF NOT EXISTS `payment` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `client_id` BIGINT(20) NOT NULL,
-  `entity_id` BIGINT(20) NOT NULL,
+  `account_id` BIGINT(20) NOT NULL,
   `payment_entity` TINYINT(1) NOT NULL,
   `payment_source_account` VARCHAR(100) NOT NULL,
   `payment_destination_account` VARCHAR(100) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `channel_ref_id` VARCHAR(150) DEFAULT NULL,
   `external_ref_id` VARCHAR(150) DEFAULT NULL,
   `channel_response_message` VARCHAR(250) DEFAULT null,
-  `payment_channel_id` BIGINT(20) NOT NULL,
+  `payment_channel_name` VARCHAR(150) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
   `transaction_date` datetime DEFAULT NULL,

@@ -144,7 +144,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 						Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN,
 								loan.getAccountNumber(), destAccount, loanTransaction.getAmount(loan.getCurrency()).getAmount(),
 								PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.OUTGOING,
-								paymentChannel, securityContext.getAuthenticatedUserIfPresent());
+								paymentChannel.getChannelName(), securityContext.getAuthenticatedUserIfPresent());
 
 						payment = paymentRepository.save(payment);
 						Map<String, Object> paymentMap = new HashMap<>();

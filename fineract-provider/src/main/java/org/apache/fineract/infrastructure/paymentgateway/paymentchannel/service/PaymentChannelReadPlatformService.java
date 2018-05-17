@@ -29,5 +29,6 @@ public interface PaymentChannelReadPlatformService {
 	
 	PaymentChannelData retrievePaymentChannelDataById(Long id);
 	
-	PaymentChannelData retrievePaymentChannelDataByChannelName(String channelName);
+	PaymentChannelData findByChannelName(String channelName);
+
 }

@@ -44,16 +44,17 @@ public class Payment extends AbstractPersistableCustom<Long> {
 	private static final long serialVersionUID = 3094416058294465789L;
 	@Column(name = "client_id")
 	private Long clientId;
-	@Column(name = "entity_id")
-	private Long entityId;
+	@Column(name = "account_id")
+	private Long accountId;
+
 	/**
 	 * A value from {@link PaymentEntity}.
 	 */
 	@Column(name = "payment_entity")
 	private int paymentEntity;
-	@Column(name = "payment_source_account", length = 100)
+	@Column(name = "payment_source_account")
 	private String paymentSourceAccount;
-	@Column(name = "payment_destination_account", length = 100)
+	@Column(name = "payment_destination_account")
 	private String paymentDestinationAccount;
 	@Column(name = "transaction_amount", scale = 6, precision = 19)
 	private BigDecimal transactionAmount;
@@ -76,35 +77,34 @@ public class Payment extends AbstractPersistableCustom<Long> {
 	private Date transactionDate;
 	@Column(name = "channel_response_message", length = 250)
 	private String channelResponseMessage;
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "payment_channel_id", nullable = false)
-	private PaymentChannel paymentChannel;
+	@Column(name = "payment_channel_name", nullable = false)
+	private String paymentChannelName;
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = true)
 	private AppUser createdBy;
 
-	public Payment(Long clientId, Long entityId, PaymentEntity paymentEntity, String paymentSourceAccount,
+	public Payment(Long clientId, Long accountId, PaymentEntity paymentEntity, String paymentSourceAccount,
 			String paymentDestinationAccount, BigDecimal transactionAmount, PaymentStatus paymentStatus,
-			PaymentDirection paymentDirection, PaymentChannel paymentChannel, AppUser createdBy) {
+			PaymentDirection paymentDirection, String paymentChannelName, AppUser createdBy) {
 		this.clientId = clientId;
-		this.entityId = entityId;
+		this.accountId = accountId;
 		this.paymentEntity = paymentEntity.getValue();
 		this.paymentSourceAccount = paymentSourceAccount;
 		this.paymentDestinationAccount = paymentDestinationAccount;
 		this.transactionAmount = transactionAmount;
 		this.paymentStatus = paymentStatus.getValue();
 		this.paymentDirection = paymentDirection.getValue();
-		this.paymentChannel = paymentChannel;
+		this.paymentChannelName = paymentChannelName;
 		this.createdBy = createdBy;
 	}
 
-	public Payment(Long clientId, Long entityId, PaymentEntity paymentEntity, String paymentSourceAccount,
+	public Payment(Long clientId, long accountId, PaymentEntity paymentEntity, String paymentSourceAccount,
 			String paymentDestinationAccount, BigDecimal transactionAmount, PaymentStatus paymentStatus,
-			PaymentDirection paymentDirection, String channelRefId, String externalRefId, String channelResponseMessage,
-			PaymentChannel paymentChannel, AppUser createdBy, Date dateCreated, Date transactionDate,
+			PaymentDirection paymentDirection, String externalRefId, String channelResponseMessage,
+			String paymentChannelName, AppUser createdBy, Date dateCreated, Date transactionDate,
 			Date lastModified) {
-		this(clientId, entityId, paymentEntity, paymentSourceAccount, paymentDestinationAccount, transactionAmount,
-				paymentStatus, paymentDirection, paymentChannel, createdBy);
+		this(clientId, accountId, paymentEntity, paymentSourceAccount, paymentDestinationAccount, transactionAmount,
+				paymentStatus, paymentDirection, paymentChannelName, createdBy);
 
 		this.dateCreated = dateCreated;
 		this.lastModified = lastModified;
@@ -134,12 +134,12 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.clientId = clientId;
 	}
 
-	public Long getEntityId() {
-		return entityId;
+	public Long getAccountId() {
+		return accountId;
 	}
 
-	public void setEntityId(Long entityId) {
-		this.entityId = entityId;
+	public void setAccountId(Long accountId) {
+		this.accountId = accountId;
 	}
 
 	/**
@@ -250,12 +250,12 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.channelResponseMessage = channelResponseMessage;
 	}
 
-	public PaymentChannel getPaymentChannel() {
-		return paymentChannel;
+	public String getPaymentChannelName() {
+		return paymentChannelName;
 	}
 
-	public void setPaymentChannel(PaymentChannel paymentChannel) {
-		this.paymentChannel = paymentChannel;
+	public void setPaymentChannelName(String paymentChannelName) {
+		this.paymentChannelName = paymentChannelName;
 	}
 
 	public AppUser getCreatedBy() {

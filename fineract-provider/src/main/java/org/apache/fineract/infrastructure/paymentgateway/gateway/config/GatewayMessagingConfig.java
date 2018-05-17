@@ -86,7 +86,6 @@ public class GatewayMessagingConfig {
             // Create a session.
             final Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            // Create a queue named "MyQueue".
             final Destination consumerDestination = consumerSession.createQueue(getRequestQueueName());
 
             // Create a message consumer from the session to the queue.
