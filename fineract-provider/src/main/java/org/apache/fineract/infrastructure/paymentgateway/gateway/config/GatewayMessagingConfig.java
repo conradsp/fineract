@@ -20,6 +20,8 @@ package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.fineract.infrastructure.core.boot.db.TenantDataSourcePortFixService;
@@ -49,11 +51,14 @@ public class GatewayMessagingConfig {
     private String responseQueueName;
     private CachingConnectionFactory connectionFactory;
     private ActiveMQConnectionFactory amqConnectionFactory;
+    private Map<String, MessageProducer> outboundQueues;
+    private Session producerSession;
 
     @Autowired
     public GatewayMessagingConfig(Environment env, GatewayEventListener gatewayEventListener) {
         this.env = env;
         this.gatewayEventListener = gatewayEventListener;
+        outboundQueues = new HashMap<>();
 
         amqConnectionFactory = new ActiveMQConnectionFactory();
         try {
@@ -84,7 +89,7 @@ public class GatewayMessagingConfig {
             consumerConnection.start();
 
             // Create a session.
-            final Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Session consumerSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             final Destination consumerDestination = consumerSession.createQueue(getRequestQueueName());
 
@@ -92,19 +97,22 @@ public class GatewayMessagingConfig {
             final MessageConsumer consumer = consumerSession.createConsumer(consumerDestination);
             consumer.setMessageListener(gatewayEventListener);
 
+            // Now create the outbound queue
+            createOutboundQueue(getResponseQueueName());
+
         } catch(Exception E) {
 
         }
 
     }
 
-    public void sendMessage(String queueName, String message) {
+    public void createOutboundQueue(String queueName) {
         try {
             final Connection producerConnection = connectionFactory.createConnection();
             producerConnection.start();
 
             // Create a session.
-            final Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             final Destination producerDestination = producerSession.createQueue(queueName);
 
@@ -112,21 +120,19 @@ public class GatewayMessagingConfig {
             final MessageProducer producer = producerSession.createProducer(producerDestination);
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-            // Create a message.
-            final TextMessage producerMessage = producerSession.createTextMessage(message);
-
-            // Send the message.
-            producer.send(producerMessage);
-
-            // Clean up the producer.
-            producer.close();
-            producerSession.close();
-            producerConnection.close();
-        } catch (Exception E) {
+            outboundQueues.put(queueName, producer);
+        } catch (JMSException E) {
 
         }
     }
 
+    public MessageProducer getMessageProducer(String queueName) {
+        return outboundQueues.get(queueName);
+    }
+
+    public Session getOutboundSession() {
+        return this.producerSession;
+    }
 
     public String getRequestQueueName() {
         return requestQueueName;

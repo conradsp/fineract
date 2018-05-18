@@ -25,6 +25,7 @@ import org.apache.fineract.infrastructure.security.service.BasicAuthTenantDetail
 import org.apache.fineract.infrastructure.paymentgateway.gateway.service.InboundMessageHandler;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.apache.fineract.useradministration.domain.AppUserRepository;
+import org.apache.openjpa.util.RuntimeExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.listener.SessionAwareMessageListener;
 import org.springframework.stereotype.Component;
@@ -64,8 +65,11 @@ public class GatewayEventListener implements MessageListener {
                 int bytesRead= ((BytesMessage)message).readBytes(content, (int)length);
                 String s = new String(content);
                 messageHandler.handlePayment(s);
-            } catch(Exception E) {
+                message.acknowledge();
+            } catch(JMSException E) {
                 throw new InvalidJsonException();
+            } catch(RuntimeException E) {
+
             }
 
         } else {

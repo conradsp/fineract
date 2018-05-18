@@ -33,7 +33,9 @@ import java.util.logging.Logger;
 import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.config.OutboundChannelHelper;
 import org.apache.fineract.infrastructure.paymentgateway.gateway.util.DateUtil;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.PaymentGatewayConstants;
 import org.apache.fineract.infrastructure.security.service.TenantDetailsService;
 import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
 import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
@@ -56,7 +58,13 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccount;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccountRepositoryWrapper;
+import org.apache.fineract.useradministration.domain.AppUser;
+import org.apache.fineract.useradministration.domain.AppUserRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -71,6 +79,7 @@ public class InboundMessageHandler {
 	private static final String channelMessageParameterName = "message";
 	private static final String paymentNoteParameterName = "paymentNote";
 	private static final String mobileNoParameterName = "mobileNo";
+	private static final String destAccountParameterName = "destAccount";
 	protected static final Logger logger = Logger.getLogger(InboundMessageHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
 	private final PaymentChannelReadPlatformService paymentChannelReadPlatformService;
@@ -81,6 +90,9 @@ public class InboundMessageHandler {
 	private final LoanRepositoryWrapper loanRepositoryWrapper;
 	private final SavingsAccountRepositoryWrapper savingRepositoryWrapper;
 	private final TenantDetailsService tenantDetailsService;
+	private final AppUserRepositoryWrapper userRepository ;
+	private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	private final OutboundChannelHelper outboundHelper;
 
 	@Autowired
 	public InboundMessageHandler(FromJsonHelper fromJsonHelper, TenantDetailsService tenantDetailsService,
@@ -88,7 +100,10 @@ public class InboundMessageHandler {
 								 PaymentChannelReadPlatformService paymentChannelReadPlatformService,
 								 PaymentRepository paymentRepository, PlatformSecurityContext context,
 								 PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-								 SavingsAccountRepositoryWrapper savingRepositoryWrapper, LoanRepositoryWrapper loanRepositoryWrapper) {
+								 SavingsAccountRepositoryWrapper savingRepositoryWrapper,
+								 LoanRepositoryWrapper loanRepositoryWrapper,
+								 AppUserRepositoryWrapper userRepository,
+								 OutboundChannelHelper outboundHelper) {
 		this.fromJsonHelper = fromJsonHelper;
 		this.paymentChannelReadPlatformService = paymentChannelReadPlatformService;
 		this.clientReadPlatformService = clientReadPlatformService;
@@ -98,6 +113,8 @@ public class InboundMessageHandler {
 		this.savingRepositoryWrapper = savingRepositoryWrapper;
 		this.loanRepositoryWrapper = loanRepositoryWrapper;
 		this.tenantDetailsService = tenantDetailsService;
+		this.userRepository = userRepository;
+		this.outboundHelper = outboundHelper;
 	}
 
 	public void handlePayment(String message) {
@@ -134,15 +151,20 @@ public class InboundMessageHandler {
 			paymentAccount = this.fromJsonHelper.extractStringNamed(paymentAccountParameterName,
 					jsonElement);
 		}
-
 		String accountType = null;
 		if (this.fromJsonHelper.parameterExists(paymentAccountTypeParameterName, jsonElement)) {
 			accountType = this.fromJsonHelper.extractStringNamed(paymentAccountTypeParameterName,
 					jsonElement);
 		}
+		String destAccount = null;
+		if (this.fromJsonHelper.parameterExists(destAccountParameterName, jsonElement)) {
+			destAccount = this.fromJsonHelper.extractStringNamed(destAccountParameterName,
+					jsonElement);
+		}
+
 		// Convert the accountType to a paymentEntity type
 		PaymentEntity paymentEntity;
-		if (accountType.contains("SAVE")) {
+		if (accountType.toLowerCase().contains("save")) {
 			paymentEntity = PaymentEntity.SAVINGS_ACCOUNT;
 
 		} else {
@@ -167,11 +189,6 @@ public class InboundMessageHandler {
 			errors.add("Invalid payment channel named: " + channelName);
 		}
 
-		//  Now determine the type of transaction and perform the appropriate action
-		switch(transactionType) {
-
-		}
-
 		ClientData clientData = null;
 		if (PaymentChannelType.fromInt(paymentChannelData.getChannelType()).isMobileMoneyChannel()) {
 			String criteria = String.format("c.mobile_no=\'%s\'", mobileNo);
@@ -182,15 +199,56 @@ public class InboundMessageHandler {
 			}
 		}
 
+		long accountId = getAccountId(paymentAccount, paymentEntity, clientData);
+		if (accountId == 0) {
+			// Invalid account number - send message back to middleware
+			return;
+		}
 
+		Date date = new Date();
+
+		AppUser user = this.userRepository.fetchSystemUser();
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(),
+				authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		Payment payment = new Payment(clientData.getId(), accountId,
+				paymentEntity, paymentAccount, destAccount, amount,
+				PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.INCOMING, externalRefId,
+				channelMessage, paymentChannelData.getChannelName(), user, date, date, date);
+		// Save Payment
+		payment = paymentRepository.save(payment);
+
+		String result = performFineractTransaction(accountId, transactionType, paymentEntity, locale, payment, paymentChannelData.getPaymentTypeId(), paymentNote);
+		if (result != "Success") {
+			// Send error back to middleware
+
+			// Update payment record in database - log the error
+			return;
+		}
+
+		//  Fineract transaction successful. Now determine the type of transaction and perform the appropriate action
+		switch(transactionType) {
+			case "SendMoney":
+				//  Put success response on outbound/response queue
+				outboundHelper.sendMessage(channelName, PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, "SUCCESS!!");
+				break;
+		}
+
+		logger.log(Level.FINE, "inbound_payment_saved " + payment.toString());
+	}
+
+	public long getAccountId(String paymentAccount, PaymentEntity paymentEntity, ClientData clientData) {
 		// Look up the account id from the account_no
 		long accountId = 0;
+		long clientId = clientData.getId();
 		switch (paymentEntity) {
 			case SAVINGS_ACCOUNT:
 				SavingsAccount savings = this.savingRepositoryWrapper
 						.findNonClosedAccountByAccountNumber(paymentAccount);
 				// Verify that the client matches
-				if (savings != null && (savings.getClient().getId() == clientData.getId())) {
+				long savingsClient = savings.getClient().getId();
+				if (savingsClient == clientId) {
 					accountId = savings.getId();
 				}
 				break;
@@ -203,40 +261,47 @@ public class InboundMessageHandler {
 				break;
 		}
 
-		Date date = new Date();
+		return accountId;
+	}
 
-		Payment payment = new Payment(clientData.getId(), accountId,
-				paymentEntity, paymentAccount, null, amount,
-				PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.INCOMING, externalRefId,
-				channelMessage, paymentChannelData.getChannelName(), this.context.getAuthenticatedUserIfPresent(), date, date, date);
-		// Save Payment
-		payment = paymentRepository.save(payment);
-		
-		 CommandWrapperBuilder builder = new CommandWrapperBuilder();
+	public String performFineractTransaction(long accountId, String transactionType, PaymentEntity paymentEntity, Locale locale, Payment payment,
+										   long paymentTypeId, String paymentNote) {
+		List<String> errors = new ArrayList<>();
+		CommandWrapperBuilder builder = new CommandWrapperBuilder();
 
 		switch (paymentEntity) {
 			case SAVINGS_ACCOUNT:
 				Map<String, String> savingsAccountrequestMap = new HashMap<>();
 				savingsAccountrequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
-				savingsAccountrequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+				savingsAccountrequestMap.put("locale", locale.toString());
 				savingsAccountrequestMap.put("transactionDate",
 						DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
 				savingsAccountrequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
-				savingsAccountrequestMap.put("paymentTypeId", String.valueOf(paymentChannelData.getPaymentTypeId()));
+				savingsAccountrequestMap.put("paymentTypeId", String.valueOf(paymentTypeId));
 				savingsAccountrequestMap.put("note", paymentNote);
 
 				final String savingsAccountrequestJson = new Gson().toJson(savingsAccountrequestMap);
 				builder.withJson(savingsAccountrequestJson);
-				this.commandsSourceWritePlatformService.logCommandSource(builder.savingsAccountDeposit(accountId).build());
+				if (transactionType.compareTo("SendMoney") == 0) {
+					// First verify balance
+					SavingsAccount savings = this.savingRepositoryWrapper.findOneWithNotFoundDetection(accountId);
+					if (savings.getWithdrawableBalance().compareTo(payment.getTransactionAmount()) < 0) {
+						errors.add("Insufficient funds");
+					} else {
+						this.commandsSourceWritePlatformService.logCommandSource(builder.savingsAccountWithdrawal(accountId).build());
+					}
+				} else {
+					this.commandsSourceWritePlatformService.logCommandSource(builder.savingsAccountDeposit(accountId).build());
+				}
 				break;
 			case LOAN:
 				Map<String, String> loanRequestMap = new HashMap<>();
 				loanRequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
-				loanRequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+				loanRequestMap.put("locale", locale.toLanguageTag());
 				loanRequestMap.put("transactionDate",
 						DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
 				loanRequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
-				loanRequestMap.put("paymentTypeId", String.valueOf(paymentChannelData.getPaymentTypeId()));
+				loanRequestMap.put("paymentTypeId", String.valueOf(paymentTypeId));
 				loanRequestMap.put("note", paymentNote);
 
 				final String loanRequestJson = new Gson().toJson(loanRequestMap);
@@ -246,11 +311,11 @@ public class InboundMessageHandler {
 			case FIXED_SAVINGS_ACCOUNT:
 				Map<String, String> fixedSavingsAccountequestMap = new HashMap<>();
 				fixedSavingsAccountequestMap.put("dateFormat", DateUtil.SHORT_DATE_FORMAT);
-				fixedSavingsAccountequestMap.put("locale", "en"); // TODO: Find a clean way of handling locale
+				fixedSavingsAccountequestMap.put("locale", locale.toLanguageTag());
 				fixedSavingsAccountequestMap.put("transactionDate",
 						DateUtil.formatDate(payment.getTransactionDate(), DateUtil.SHORT_DATE_FORMAT));
 				fixedSavingsAccountequestMap.put("transactionAmount", String.valueOf(payment.getTransactionAmount()));
-				fixedSavingsAccountequestMap.put("paymentTypeId", String.valueOf(paymentChannelData.getPaymentTypeId()));
+				fixedSavingsAccountequestMap.put("paymentTypeId", String.valueOf(paymentTypeId));
 				fixedSavingsAccountequestMap.put("note", paymentNote);
 
 				final String fixedSavingsAccountequestJson = new Gson().toJson(fixedSavingsAccountequestMap);
@@ -261,7 +326,9 @@ public class InboundMessageHandler {
 				errors.add("Invalid payment entity");
 				break;
 		}
-
-		logger.log(Level.FINE, "inbound_payment_saved " + payment.toString());
+		if (errors.isEmpty()) {
+			return "Success";
+		}
+		return errors.toString();
 	}
 }

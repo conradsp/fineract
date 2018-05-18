@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `date_created` datetime DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
   `transaction_date` datetime DEFAULT NULL,
-  `user_id` BIGINT(20) NOT NULL,
+  `user_id` BIGINT(20) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_client_id_for_payment` FOREIGN KEY (`client_id`) REFERENCES `m_client` (`id`),
   CONSTRAINT `fk_payment_created_by_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`)

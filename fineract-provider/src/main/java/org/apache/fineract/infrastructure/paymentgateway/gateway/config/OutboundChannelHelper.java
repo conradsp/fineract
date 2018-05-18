@@ -19,26 +19,44 @@
 
 package org.apache.fineract.infrastructure.paymentgateway.gateway.config;
 
+import org.apache.fineract.infrastructure.paymentgateway.gateway.service.GatewayEventListener;
 import org.apache.fineract.infrastructure.paymentgateway.gateway.util.PaymentGatewayConstants;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.integration.support.MessageBuilder;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
+
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Message;
+import javax.jms.Session;
+
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Lazy;
 
 @Service
 public class OutboundChannelHelper implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
+	private GatewayMessagingConfig messagingConfig;
+
+	@Autowired
+	public OutboundChannelHelper(@Lazy GatewayMessagingConfig messagingConfig) {
+		this.messagingConfig = messagingConfig;
+	}
 
 	public void sendMessage(String channelName, String channelUsage, String message) {
-		MessageChannel channel = applicationContext.getBean("routerChannel", MessageChannel.class);
+		MessageProducer producer = messagingConfig.getMessageProducer(channelName+"."+channelUsage);
+		Session session = messagingConfig.getOutboundSession();
 
-		Message<String> payload = MessageBuilder.withPayload(message).setHeader(PaymentGatewayConstants.CHANNEL_NAME_HEADER, channelName)
-				.setHeader(PaymentGatewayConstants.CHANNEL_USAGE_HEADER, channelUsage).build();
+		//TextMessage payload = TextMessage.withPayload(message).setHeader(PaymentGatewayConstants.CHANNEL_NAME_HEADER, channelName)
+		//		.setHeader(PaymentGatewayConstants.CHANNEL_USAGE_HEADER, channelUsage).build();
 
-		channel.send(payload);
+		// Send the message.
+		try {
+			producer.send(session.createTextMessage(message));
+		} catch (JMSException E) {
+
+		}
 	}
 
 	@Override
