@@ -154,7 +154,7 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 
 						final String jsonPayment = new Gson().toJson(paymentMap);
 						// send payment to queue
-						outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_REQUEST_USAGE, jsonPayment);
+						outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, jsonPayment);
 					}
 				}
 			}

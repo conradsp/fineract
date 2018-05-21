@@ -231,7 +231,8 @@ public class InboundMessageHandler {
 		switch(transactionType) {
 			case "SendMoney":
 				//  Put success response on outbound/response queue
-				outboundHelper.sendMessage(channelName, PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, "SUCCESS!!");
+				String retMsg = "{'txref':'"+externalRefId+"','state':'FundsWithdrawn','status':'SUCCESS'}";
+				outboundHelper.sendMessage(channelName, PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, retMsg);
 				break;
 		}
 
