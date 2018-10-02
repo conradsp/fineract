@@ -17,12 +17,15 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 
-public interface PaymentChannelRepository extends JpaRepository<PaymentChannel, Long>{
+public interface PaymentGatewayWritePlatformService {
+	
+	CommandProcessingResult create(JsonCommand command);
 
-	PaymentChannel findByChannelName(String channelName);
+    CommandProcessingResult update(Long resourceId, JsonCommand command);
 
 }

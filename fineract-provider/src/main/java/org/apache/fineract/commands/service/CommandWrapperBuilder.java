@@ -3133,27 +3133,18 @@ public class CommandWrapperBuilder {
         return this;
     }
 
-    public CommandWrapperBuilder createPaymentChannel() {
-        this.actionName = "CREATE";
-        this.entityName = "PAYMENTCHANNEL";
-        this.entityId = null;
-        this.href = "/paymentchannel";
-        return this;
-    }
-
-    public CommandWrapperBuilder updatePaymentChannel(final Long resourceId) {
+    public CommandWrapperBuilder updatePaymentGateway() {
         this.actionName = "UPDATE";
-        this.entityName = "PAYMENTCHANNEL";
-        this.entityId = resourceId;
-        this.href = "/paymentchannel/" + resourceId;
+        this.entityName = "PAYMENTGATEWAY";
+        this.href = "/paymentgateway";
         return this;
     }
 
-    public CommandWrapperBuilder deletePaymentChannel(final Long resourceId) {
-        this.actionName = "DELETE";
-        this.entityName = "PAYMENTCHANNEL";
-        this.entityId = resourceId;
-        this.href = "/paymentchannel/" + resourceId;
+    public CommandWrapperBuilder createPaymentGateway() {
+        this.actionName = "CREATE";
+        this.entityName = "PAYMENTGATEWAY";
+        this.href = "/paymentgateway";
         return this;
     }
+
 }

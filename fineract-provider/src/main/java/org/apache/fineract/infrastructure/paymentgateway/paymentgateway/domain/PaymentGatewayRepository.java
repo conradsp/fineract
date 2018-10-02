@@ -17,18 +17,11 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain;
 
-import java.util.Collection;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
+public interface PaymentGatewayRepository extends JpaRepository<PaymentGateway, Long>{
 
-public interface PaymentChannelReadPlatformService {
-
-	Collection<PaymentChannelData> retrieveAllPaymentChannelData();
-	
-	PaymentChannelData retrievePaymentChannelDataById(Long id);
-	
-	PaymentChannelData findByChannelName(String channelName);
 
 }

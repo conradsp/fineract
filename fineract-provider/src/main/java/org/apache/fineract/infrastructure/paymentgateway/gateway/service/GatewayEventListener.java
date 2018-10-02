@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.paymentgateway.gateway.service;
 
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.fineract.infrastructure.core.domain.FineractPlatformTenant;
 import org.apache.fineract.infrastructure.core.exception.InvalidJsonException;
 import org.apache.fineract.infrastructure.core.service.ThreadLocalContextUtil;
@@ -58,18 +59,17 @@ public class GatewayEventListener implements MessageListener {
 
     @Override
     public void onMessage(Message message)  {
-        if (message instanceof BytesMessage) {
+        if (message instanceof ActiveMQTextMessage) {
             try {
-                long length = ((BytesMessage) message).getBodyLength();
+                long length = ((ActiveMQTextMessage) message).getSize();
                 byte[] content = new byte[(int)length];
-                int bytesRead= ((BytesMessage)message).readBytes(content, (int)length);
-                String s = new String(content);
+                String s= ((ActiveMQTextMessage)message).getText();
                 messageHandler.handlePayment(s);
                 message.acknowledge();
             } catch(JMSException E) {
                 throw new InvalidJsonException();
             } catch(RuntimeException E) {
-
+                throw new RuntimeException(E);
             }
 
         } else {

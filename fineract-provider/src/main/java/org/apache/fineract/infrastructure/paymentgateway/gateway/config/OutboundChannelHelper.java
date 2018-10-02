@@ -44,7 +44,8 @@ public class OutboundChannelHelper implements ApplicationContextAware {
 		this.messagingConfig = messagingConfig;
 	}
 
-	public void sendMessage(String channelName, String channelUsage, String message) {
+	public void sendMessage(String channelUsage, String message) {
+		String channelName = PaymentGatewayConstants.ACTIVEMQ_SUBSCRIBER_SERVICE_NAME;
 		MessageProducer producer = messagingConfig.getMessageProducer(channelName+"."+channelUsage);
 		Session session = messagingConfig.getOutboundSession();
 

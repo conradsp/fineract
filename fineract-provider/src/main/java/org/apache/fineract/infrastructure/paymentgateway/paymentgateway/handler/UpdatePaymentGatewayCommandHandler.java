@@ -17,31 +17,31 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.handler;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.handler;
 
 import org.apache.fineract.commands.annotation.CommandType;
 import org.apache.fineract.commands.handler.NewCommandSourceHandler;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelWritePlatformService;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service.PaymentGatewayWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@CommandType(entity = "PAYMENTCHANNEL", action = "CREATE")
-public class CreatePaymentChannelCommandHandler implements NewCommandSourceHandler {
-private final PaymentChannelWritePlatformService paymentChannelWritePlatformService;
+@CommandType(entity = "PAYMENTGATEWAY", action = "UPDATE")
+public class UpdatePaymentGatewayCommandHandler implements NewCommandSourceHandler {
+    private final PaymentGatewayWritePlatformService writePlatformService;
 
     @Autowired
-    public CreatePaymentChannelCommandHandler(PaymentChannelWritePlatformService paymentChannelWritePlatformService) {
-        this.paymentChannelWritePlatformService = paymentChannelWritePlatformService;
+    public UpdatePaymentGatewayCommandHandler(final PaymentGatewayWritePlatformService writePlatformService) {
+        this.writePlatformService = writePlatformService;
     }
 
     @Transactional
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.paymentChannelWritePlatformService.create(command);
+        return this.writePlatformService.update(command.entityId(), command);
     }
 }

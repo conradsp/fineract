@@ -40,4 +40,12 @@ public class AppUserRepositoryWrapper {
         }
         return user ;
     }
+
+    public AppUser fetchUserById(Long id) {
+        AppUser user = this.appUserRepository.findOne(id);
+        if(user == null) {
+            throw new UserNotFoundException(id) ;
+        }
+        return user ;
+    }
 }

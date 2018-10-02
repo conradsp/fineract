@@ -34,7 +34,6 @@ import org.apache.fineract.portfolio.paymentdetail.data.PaymentDetailData;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
 import org.apache.fineract.portfolio.paymenttype.domain.PaymentType;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 
 @Entity
 @Table(name = "m_payment_detail")
@@ -59,9 +58,8 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
     @Column(name = "bank_number", length = 50)
     private String bankNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_channel_id", nullable = false)
-    private PaymentChannel paymentChannel;
+    @Column(name = "payment_channel_id", length = 50)
+    private String paymentChannelId;
 
     protected PaymentDetail() {
 
@@ -111,9 +109,9 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
     }
 
     private PaymentDetail(final PaymentType paymentType, final String accountNumber, final String checkNumber, final String routingCode,
-                          final String receiptNumber, final String bankNumber, final PaymentChannel paymentChannel) {
+                          final String receiptNumber, final String bankNumber, final String paymentChannelId) {
         this(paymentType, accountNumber, checkNumber, routingCode, receiptNumber, bankNumber);
-        this.paymentChannel = paymentChannel;
+        this.paymentChannelId = paymentChannelId;
     }
 
     public PaymentDetailData toData() {
@@ -133,12 +131,12 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
         return accountNumber;
     }
 
-    public PaymentChannel getPaymentChannel() {
-        return paymentChannel;
+    public String getPaymentChannelId() {
+        return paymentChannelId;
     }
 
-    public void setPaymentChannel(PaymentChannel paymentChannel) {
-        this.paymentChannel = paymentChannel;
+    public void setPaymentChannel(String paymentChannelId) {
+        this.paymentChannelId = paymentChannelId;
     }
 
     @Override
@@ -150,7 +148,7 @@ public final class PaymentDetail extends AbstractPersistableCustom<Long> {
                 .append("routingCode", routingCode)
                 .append("receiptNumber", receiptNumber)
                 .append("bankNumber", bankNumber)
-                .append("paymentChannel", paymentChannel)
+                .append("paymentChannel", paymentChannelId)
                 .append("toData", toData())
                 .toString();
     }

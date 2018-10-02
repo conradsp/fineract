@@ -22,7 +22,6 @@ package org.apache.fineract.infrastructure.paymentgateway.payment.service;
 import java.util.Collection;
 
 import org.apache.fineract.infrastructure.paymentgateway.payment.data.PaymentData;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
 
 public interface PaymentReadPlatformService {
 

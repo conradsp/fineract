@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `channel_ref_id` VARCHAR(150) DEFAULT NULL,
   `external_ref_id` VARCHAR(150) DEFAULT NULL,
   `channel_response_message` VARCHAR(250) DEFAULT null,
-  `payment_channel_name` VARCHAR(150) NOT NULL,
+  `payment_channel_id` VARCHAR(150) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
   `transaction_date` datetime DEFAULT NULL,

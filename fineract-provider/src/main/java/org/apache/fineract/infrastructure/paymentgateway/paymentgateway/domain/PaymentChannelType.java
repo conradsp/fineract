@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

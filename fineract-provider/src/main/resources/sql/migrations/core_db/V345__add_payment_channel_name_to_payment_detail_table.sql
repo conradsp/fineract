@@ -17,5 +17,5 @@
 -- under the License.
 --
 
-INSERT INTO `m_permission` (`grouping`, `code`, `entity_name`, `action_name`, `can_maker_checker`)
-VALUES ('configuration', 'EDIT_PAYMENTGATEWAY', 'PAYMENTGATEWAY', 'EDIT', '0');
+ALTER TABLE m_payment_detail
+ADD COLUMN payment_channel_id VARCHAR(150);

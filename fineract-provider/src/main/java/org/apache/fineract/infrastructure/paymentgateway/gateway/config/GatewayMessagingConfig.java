@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.fineract.infrastructure.core.boot.db.TenantDataSourcePortFixService;
 import org.apache.fineract.infrastructure.paymentgateway.gateway.service.GatewayEventListener;
+import org.apache.fineract.infrastructure.paymentgateway.gateway.util.PaymentGatewayConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +78,8 @@ public class GatewayMessagingConfig {
     }
 
     public void connectQueue() {
-        setRequestQueueName(this.channelName+".request");
-        setResponseQueueName(this.channelName+".response");
+        setRequestQueueName(this.channelName+"."+PaymentGatewayConstants.CHANNEL_INBOUND_USAGE);
+        setResponseQueueName(this.channelName+"."+PaymentGatewayConstants.CHANNEL_OUTBOUND_USAGE);
 
         // Establish a connection for the producer.
         try {

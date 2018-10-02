@@ -17,5 +17,15 @@
 -- under the License.
 --
 
-ALTER TABLE m_payment_detail
-ADD COLUMN payment_channel_id BIGINT(20);
+CREATE TABLE IF NOT EXISTS `payment_gateway_config` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `is_active` TINYINT(1) NULL,
+  `gateway_url` VARCHAR(250) NOT NULL,
+  `payment_type_id` INT(11) NOT NULL,
+  `user_id` BIGINT(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_payment_gateway_m_appuser` FOREIGN KEY (`user_id`) REFERENCES `m_appuser` (`id`),
+  CONSTRAINT `fk_payment_gateway_payment_type` FOREIGN KEY (`payment_type_id`) REFERENCES `m_payment_type` (`id`)
+)ENGINE = InnoDB;
+
+INSERT INTO `m_permission` (`grouping`, `code`, `entity_name`, `action_name`, `can_maker_checker`) VALUES ('portfolio', 'UPDATE_PAYMENTGATEWAY', 'PAYMENTGATEWAY', 'UPDATE', 0);

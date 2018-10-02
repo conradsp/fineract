@@ -17,19 +17,19 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service;
 
 import java.util.Map;
+import java.util.List;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain.PaymentGateway;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain.PaymentGatewayRepository;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.paymenttype.domain.PaymentType;
 import org.apache.fineract.portfolio.paymenttype.domain.PaymentTypeRepository;
-import org.apache.fineract.useradministration.domain.AppUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +37,18 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWritePlatformService {
+public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWritePlatformService {
 
-	private final static Logger logger = LoggerFactory.getLogger(PaymentChannelWritePlatformServiceImpl.class);
-	private final PaymentChannelRepository paymentChannelRepository;
+	private final static Logger logger = LoggerFactory.getLogger(PaymentGatewayWritePlatformServiceImpl.class);
+	private final PaymentGatewayRepository paymentGatewayRepository;
 	private final PlatformSecurityContext context;
 	private final PaymentTypeRepository paymentTypeRepository;
 
 	@Autowired
-	public PaymentChannelWritePlatformServiceImpl(PaymentChannelRepository paymentChannelRepository,
-			PlatformSecurityContext context, PaymentTypeRepository paymentTypeRepository) {
+	public PaymentGatewayWritePlatformServiceImpl(PaymentGatewayRepository paymentGatewayRepository,
+												  PlatformSecurityContext context, PaymentTypeRepository paymentTypeRepository) {
 		super();
-		this.paymentChannelRepository = paymentChannelRepository;
+		this.paymentGatewayRepository = paymentGatewayRepository;
 		this.context = context;
 		this.paymentTypeRepository = paymentTypeRepository;
 	}
@@ -56,14 +56,13 @@ public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWri
 	@Override
 	public CommandProcessingResult create(JsonCommand command) {
 		try {
-			PaymentChannel paymentChannel = PaymentChannel.fromJson(command);
+			PaymentGateway paymentChannel = PaymentGateway.fromJson(command);
 			
 			final Long paymentTypeId = command.longValueOfParameterNamed("paymentTypeId");
-			PaymentType paymentType = paymentTypeRepository.findOne(paymentTypeId);
 			
-			paymentChannel.setPaymentType(paymentType);
-			paymentChannel.setCreatedBy(this.context.authenticatedUser());
-			paymentChannel = paymentChannelRepository.save(paymentChannel);
+			paymentChannel.setPaymentType(paymentTypeId);
+			paymentChannel.setCreatedBy(this.context.authenticatedUser().getId());
+			paymentChannel = paymentGatewayRepository.save(paymentChannel);
 			return new CommandProcessingResultBuilder() //
 					.withCommandId(command.commandId()) //
 					.withEntityId(paymentChannel.getId()) //
@@ -77,35 +76,34 @@ public class PaymentChannelWritePlatformServiceImpl implements PaymentChannelWri
 	@Override
 	public CommandProcessingResult update(Long resourceId, JsonCommand command) {
 		try {
+			Map<String, Object> changes = null;
+			final List<PaymentGateway> paymentGateway = paymentGatewayRepository.findAll();
+			if (paymentGateway.isEmpty()) {
+				PaymentGateway newGatewayConfig = new PaymentGateway();
+				changes = newGatewayConfig.update(command);
+				if (!changes.isEmpty()) {
+					this.paymentGatewayRepository.save(newGatewayConfig);
+				}
+			} else {
+				changes = paymentGateway.get(0).update(command);
+				if (!changes.isEmpty()) {
+					this.paymentGatewayRepository.save(paymentGateway.get(0));
+				}
+			}
 
-			final PaymentChannel paymentChannel = paymentChannelRepository.findOne(resourceId);
-			final Map<String, Object> changes = paymentChannel.update(command);
 			if (!changes.isEmpty()) {
-				this.paymentChannelRepository.save(paymentChannel);
+				this.paymentGatewayRepository.save(paymentGateway);
 			}
 
 			return new CommandProcessingResultBuilder() //
 					.withCommandId(command.commandId()) //
-					.withEntityId(resourceId) //
+					.withEntityId((long) 1) //
 					.with(changes) //
 					.build();
 		} catch (final DataIntegrityViolationException dve) {
 			handleDataIntegrityIssues(command, dve);
 			return CommandProcessingResult.empty();
 		}
-	}
-
-	@Override
-	public CommandProcessingResult delete(Long resourceId) {
-		try {
-			final PaymentChannel paymentChannel = paymentChannelRepository.findOne(resourceId);
-			this.paymentChannelRepository.delete(paymentChannel);
-			this.paymentChannelRepository.flush();
-		} catch (final DataIntegrityViolationException dve) {
-			handleDataIntegrityIssues(null, dve);
-			return CommandProcessingResult.empty();
-		}
-		return new CommandProcessingResultBuilder().withEntityId(resourceId).build();
 	}
 
 	private void handleDataIntegrityIssues(@SuppressWarnings("unused") final JsonCommand command,

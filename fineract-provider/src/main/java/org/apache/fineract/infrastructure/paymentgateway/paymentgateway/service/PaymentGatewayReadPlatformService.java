@@ -17,16 +17,16 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service;
 
-import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import java.util.Collection;
 
-public interface PaymentChannelWritePlatformService {
-	
-	CommandProcessingResult create(JsonCommand command);
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.data.PaymentGatewayData;
 
-    CommandProcessingResult update(Long resourceId, JsonCommand command);
+public interface PaymentGatewayReadPlatformService {
 
-    CommandProcessingResult delete(Long resourceId);
+    PaymentGatewayData retrievePaymentGatewayData();
+
+    boolean isPaymentGatewayActive();
+
 }

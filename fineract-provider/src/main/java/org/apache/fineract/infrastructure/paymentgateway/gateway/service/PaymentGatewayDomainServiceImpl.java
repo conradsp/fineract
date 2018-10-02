@@ -33,8 +33,6 @@ import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentR
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelType;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
@@ -130,31 +128,33 @@ public class PaymentGatewayDomainServiceImpl implements PaymentGatewayDomainServ
 				loanTransaction = filteredLoanTransactions.get(0);
 				PaymentDetail paymentDetail = loanTransaction.getPaymentDetail();
 				if (paymentDetail != null) {
-					PaymentChannel paymentChannel = paymentDetail.getPaymentChannel();
+					String paymentChannel = paymentDetail.getPaymentChannelId();
 
-					if (paymentChannel != null) {
+					if ((paymentChannel != null) && (paymentChannel != "")) {
 						String destAccount = paymentDetail.getAccountNumber();
 
 						// If the payment channel is a mobile money channel, use the mobile number as the destination account
 						//  Unless the user overrides it in the disbursement screen
-						if (PaymentChannelType.fromInt(paymentChannel.getChannelType()).isMobileMoneyChannel() && (paymentDetail.getAccountNumber() == "")) {
+						if (paymentDetail.getAccountNumber() == "") {
 							ClientData client = clientReadPlatformService.retrieveOne(loan.getClientId());
 							destAccount = client.getMobileNo();
 						}
 						Payment payment = new Payment(loan.getClientId(), loan.getId(), PaymentEntity.LOAN,
 								loan.getAccountNumber(), destAccount, loanTransaction.getAmount(loan.getCurrency()).getAmount(),
 								PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.OUTGOING,
-								paymentChannel.getChannelName(), securityContext.getAuthenticatedUserIfPresent());
+								paymentChannel, securityContext.getAuthenticatedUserIfPresent());
 
 						payment = paymentRepository.save(payment);
 						Map<String, Object> paymentMap = new HashMap<>();
+						paymentMap.put("transactionType", PaymentGatewayConstants.TRANSACTION_TYPE_LOAN_DISBURSAL);
+						paymentMap.put("paymentChannelId", paymentChannel);
 						paymentMap.put("transactionReference", hashUtil.hashEncodeId(payment.getId()));
 						paymentMap.put("paymentAccount", payment.getPaymentDestinationAccount());
 						paymentMap.put("transactionAmount", payment.getTransactionAmount());
 
 						final String jsonPayment = new Gson().toJson(paymentMap);
 						// send payment to queue
-						outboundChannelHelper.sendMessage(paymentChannel.getChannelName(), PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, jsonPayment);
+						outboundChannelHelper.sendMessage(PaymentGatewayConstants.CHANNEL_OUTBOUND_USAGE, jsonPayment);
 					}
 				}
 			}

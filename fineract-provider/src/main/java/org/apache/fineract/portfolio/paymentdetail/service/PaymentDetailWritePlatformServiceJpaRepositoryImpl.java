@@ -21,8 +21,7 @@ package org.apache.fineract.portfolio.paymentdetail.service;
 import java.util.Map;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelRepository;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain.PaymentGatewayRepository;
 import org.apache.fineract.portfolio.paymentdetail.PaymentDetailConstants;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetailRepository;
@@ -38,15 +37,15 @@ public class PaymentDetailWritePlatformServiceJpaRepositoryImpl implements Payme
 	private final PaymentDetailRepository paymentDetailRepository;
 	// private final CodeValueRepositoryWrapper codeValueRepositoryWrapper;
 	private final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper;
-	private final PaymentChannelRepository paymentChannelRepository;
+	private final PaymentGatewayRepository paymentGatewayRepository;
 
 	@Autowired
 	public PaymentDetailWritePlatformServiceJpaRepositoryImpl(final PaymentDetailRepository paymentDetailRepository,
 			final PaymentTypeRepositoryWrapper paymentTyperepositoryWrapper,
-			final PaymentChannelRepository paymentChannelRepository) {
+			final PaymentGatewayRepository paymentGatewayRepository) {
 		this.paymentDetailRepository = paymentDetailRepository;
 		this.paymentTyperepositoryWrapper = paymentTyperepositoryWrapper;
-		this.paymentChannelRepository = paymentChannelRepository;
+		this.paymentGatewayRepository = paymentGatewayRepository;
 	}
 
 	@Override
@@ -55,14 +54,13 @@ public class PaymentDetailWritePlatformServiceJpaRepositoryImpl implements Payme
 		if (paymentTypeId == null) {
 			return null;
 		}
-		final Long paymentChannelId = command.longValueOfParameterNamed(PaymentDetailConstants.paymentChannelParamName);
-        if (paymentChannelId == null) {
+		final String paymentChannel = command.stringValueOfParameterNamed(PaymentDetailConstants.paymentChannelParamName);
+        if (paymentChannel == null) {
             return null;
         }
 
 		final PaymentType paymentType = this.paymentTyperepositoryWrapper.findOneWithNotFoundDetection(paymentTypeId);
 		final PaymentDetail paymentDetail = PaymentDetail.generatePaymentDetail(paymentType, command, changes);
-        final PaymentChannel paymentChannel = this.paymentChannelRepository.findOne(paymentChannelId);
         paymentDetail.setPaymentChannel(paymentChannel);
 		return paymentDetail;
 

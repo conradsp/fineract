@@ -17,13 +17,25 @@
  * under the License.
  */
 
-package org.apache.fineract.infrastructure.paymentgateway.paymentchannel.api;
+package org.apache.fineract.infrastructure.paymentgateway.paymentgateway.api;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.fineract.commands.domain.CommandWrapper;
+import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
-import org.apache.fineract.infrastructure.core.serialization.ExcludeNothingWithPrettyPrintingOffJsonSerializerGoogleGson;
 import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.data.PaymentGatewayData;
 import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service.PaymentGatewayReadPlatformService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
@@ -31,34 +43,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-@Path("/paymentchannels")
+@Path("/paymentgateway")
 @Component
 @Scope("singleton")
-public class PaymentChannelApiResource {
+public class PaymentGatewayApiResource {
 
-	private final static Logger logger = LoggerFactory.getLogger(PaymentChannelApiResource.class);
+	private final Set<String> PAYMENT_GATEWAY_PARAMETERS = new HashSet<>(
+			Arrays.asList("isActive", "gatewayEndpoint", "paymentType", "gatewayUserId"));
 
-	private final Set<String> PAYMENT_CHANNEL_DATA_PARAMETERS = new HashSet<>(
-			Arrays.asList("id", "channelName", "channelType", "isActive"));
-
-	private final String resourceNameForPermissions = "PAYMENTCHANNEL";
+	private final String resourceNameForPermissions = "PAYMENTGATEWAY";
 	private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
 	private final PlatformSecurityContext securityContext;
 	private final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer;
@@ -66,7 +59,7 @@ public class PaymentChannelApiResource {
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
 	@Autowired
-	public PaymentChannelApiResource(PlatformSecurityContext securityContext,
+	public PaymentGatewayApiResource(PlatformSecurityContext securityContext,
 									 DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer,
 									 ApiRequestParameterHelper apiRequestParameterHelper,
 									 PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
@@ -83,45 +76,39 @@ public class PaymentChannelApiResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retrieveAllPaymentChannels(@Context final UriInfo uriInfo) {
 
-		// Check to see if payment gateway is enabled. If so, read the gateway URL
-		boolean isActive = this.paymentGatewayReadPlatformService.isPaymentGatewayActive();
-		if (isActive) {
-			// Call the payment gateway API
+		this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
-			this.securityContext.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
+		final PaymentGatewayData paymentGatewayData = this.paymentGatewayReadPlatformService
+				.retrievePaymentGatewayData();
 
-			final PaymentGatewayData paymentGatewayData = this.paymentGatewayReadPlatformService
-					.retrievePaymentGatewayData();
-
-			String gatewayUrl = paymentGatewayData.getGatewayUrl();
-
-			try {
-				URL url = new URL(gatewayUrl+"/active-vendors");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("GET");
-				con.setRequestProperty("Content-Type", "application/json");
-				int status = con.getResponseCode();
-
-				BufferedReader in = new BufferedReader(
-						new InputStreamReader(con.getInputStream()));
-				String inputLine;
-				StringBuffer content = new StringBuffer();
-				while ((inputLine = in.readLine()) != null) {
-					content.append(inputLine);
-				}
-				in.close();
-				con.disconnect();
-
-				return content.toString();
-			}
-			catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-
-		}
-
-		return "Inactive";
-
+		final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper
+				.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, paymentGatewayData, this.PAYMENT_GATEWAY_PARAMETERS);
 	}
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String create(final String apiRequestBodyAsJson) {
+
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(apiRequestBodyAsJson).build();
+
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+		return this.toApiJsonSerializer.serialize(result);
+	}
+
+    @PUT
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+    public String update(final String apiRequestBodyAsJson) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentGateway().withJson(apiRequestBodyAsJson).build();
+
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+        return this.toApiJsonSerializer.serialize(result);
+    }
+
 
 }

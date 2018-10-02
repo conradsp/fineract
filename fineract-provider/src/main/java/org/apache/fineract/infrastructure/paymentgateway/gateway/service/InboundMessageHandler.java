@@ -44,14 +44,13 @@ import org.apache.fineract.infrastructure.paymentgateway.payment.domain.PaymentR
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.data.PaymentChannelData;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannelType;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.service.PaymentChannelReadPlatformService;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.data.PaymentGatewayData;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.domain.PaymentChannelType;
+import org.apache.fineract.infrastructure.paymentgateway.paymentgateway.service.PaymentGatewayReadPlatformService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.client.service.ClientReadPlatformService;
 
-import javax.jms.Message;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
@@ -72,7 +71,7 @@ public class InboundMessageHandler {
 	// TODO: handle proper logging
 	private static final String transactionTypeParameterName = "transactionType";
 	private static final String amountParameterName = "amount";
-	private static final String channelNameParameterName = "channelName";
+	private static final String channelNameParameterName = "channelId";
 	private static final String externalRefIdParameterName = "externalRefId";
 	private static final String paymentAccountTypeParameterName = "accountType";
 	private static final String paymentAccountParameterName = "paymentAccount";
@@ -82,7 +81,7 @@ public class InboundMessageHandler {
 	private static final String destAccountParameterName = "destAccount";
 	protected static final Logger logger = Logger.getLogger(InboundMessageHandler.class.getName());
 	private final FromJsonHelper fromJsonHelper;
-	private final PaymentChannelReadPlatformService paymentChannelReadPlatformService;
+	private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
 	private final ClientReadPlatformService clientReadPlatformService;
 	private final PaymentRepository paymentRepository;
 	private final PlatformSecurityContext context;
@@ -97,7 +96,7 @@ public class InboundMessageHandler {
 	@Autowired
 	public InboundMessageHandler(FromJsonHelper fromJsonHelper, TenantDetailsService tenantDetailsService,
 								 ClientReadPlatformService clientReadPlatformService,
-								 PaymentChannelReadPlatformService paymentChannelReadPlatformService,
+								 PaymentGatewayReadPlatformService paymentGatewayReadPlatformService,
 								 PaymentRepository paymentRepository, PlatformSecurityContext context,
 								 PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 								 SavingsAccountRepositoryWrapper savingRepositoryWrapper,
@@ -105,7 +104,7 @@ public class InboundMessageHandler {
 								 AppUserRepositoryWrapper userRepository,
 								 OutboundChannelHelper outboundHelper) {
 		this.fromJsonHelper = fromJsonHelper;
-		this.paymentChannelReadPlatformService = paymentChannelReadPlatformService;
+		this.paymentGatewayReadPlatformService = paymentGatewayReadPlatformService;
 		this.clientReadPlatformService = clientReadPlatformService;
 		this.paymentRepository = paymentRepository;
 		this.context = context;
@@ -122,7 +121,8 @@ public class InboundMessageHandler {
 
 		JsonElement jsonElement = fromJsonHelper.parse(message.toString());
 		final Locale locale = this.fromJsonHelper.extractLocaleParameter(jsonElement.getAsJsonObject());
-		PaymentChannelData paymentChannelData = null;
+
+		PaymentGatewayData paymentGatewayData = null;
 		List<String> errors = new ArrayList<>();
 
 		String transactionType = null;
@@ -162,13 +162,18 @@ public class InboundMessageHandler {
 					jsonElement);
 		}
 
-		// Convert the accountType to a paymentEntity type
 		PaymentEntity paymentEntity;
-		if (accountType.toLowerCase().contains("save")) {
-			paymentEntity = PaymentEntity.SAVINGS_ACCOUNT;
-
-		} else {
+		if (transactionType.equals(PaymentGatewayConstants.TRANSACTION_TYPE_LOAN_REPAYMENT)) {
 			paymentEntity = PaymentEntity.LOAN;
+		} else {
+			// Convert the accountType to a paymentEntity type
+
+			if (accountType.toLowerCase().contains("save")) {
+				paymentEntity = PaymentEntity.SAVINGS_ACCOUNT;
+
+			} else {
+				paymentEntity = PaymentEntity.LOAN;
+			}
 		}
 
 		String channelMessage = null;
@@ -184,13 +189,14 @@ public class InboundMessageHandler {
 		// TODO: handle multiple tenants
 		FineractPlatformTenant tenant = tenantDetailsService.loadTenantById("default");
 		ThreadLocalContextUtil.setTenant(tenant);
-		paymentChannelData = paymentChannelReadPlatformService.findByChannelName(channelName);
-		if (paymentChannelData == null) {
-			errors.add("Invalid payment channel named: " + channelName);
+		paymentGatewayData = paymentGatewayReadPlatformService.retrievePaymentGatewayData();
+		if (paymentGatewayData.isActive() == false) {
+			errors.add("Payment Gateway not active");
 		}
 
 		ClientData clientData = null;
-		if (PaymentChannelType.fromInt(paymentChannelData.getChannelType()).isMobileMoneyChannel()) {
+		// TODO: Lookup payment type
+		if (paymentGatewayData.getPaymentTypeId() > 0) {
 			String criteria = String.format("c.mobile_no=\'%s\'", mobileNo);
 			Collection<ClientData> clientDataCollection = clientReadPlatformService.retrieveAllForLookup(criteria);
 			Iterator<ClientData> iterator = clientDataCollection.iterator();
@@ -207,19 +213,24 @@ public class InboundMessageHandler {
 
 		Date date = new Date();
 
-		AppUser user = this.userRepository.fetchSystemUser();
+		AppUser user = this.userRepository.fetchUserById(paymentGatewayData.getPaymentGatewayUser());
 		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(),
 				authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
+		if (transactionType.equals(PaymentGatewayConstants.TRANSACTION_TYPE_LOAN_REPAYMENT)) {
+			if (paymentAccount == null) {
+				paymentAccount = "External";
+			}
+		}
 		Payment payment = new Payment(clientData.getId(), accountId,
 				paymentEntity, paymentAccount, destAccount, amount,
 				PaymentStatus.PAYMENT_PROCESSING, PaymentDirection.INCOMING, externalRefId,
-				channelMessage, paymentChannelData.getChannelName(), user, date, date, date);
+				channelMessage, channelName, user, date, date, date);
 		// Save Payment
 		payment = paymentRepository.save(payment);
 
-		String result = performFineractTransaction(accountId, transactionType, paymentEntity, locale, payment, paymentChannelData.getPaymentTypeId(), paymentNote);
+		String result = performFineractTransaction(accountId, transactionType, paymentEntity, locale, payment, paymentGatewayData.getPaymentTypeId(), paymentNote);
 		if (result != "Success") {
 			// Send error back to middleware
 
@@ -228,11 +239,17 @@ public class InboundMessageHandler {
 		}
 
 		//  Fineract transaction successful. Now determine the type of transaction and perform the appropriate action
+		String retMsg;
 		switch(transactionType) {
 			case "SendMoney":
 				//  Put success response on outbound/response queue
-				String retMsg = "{'txref':'"+externalRefId+"','state':'FundsWithdrawn','status':'SUCCESS'}";
-				outboundHelper.sendMessage(channelName, PaymentGatewayConstants.CHANNEL_RESPONSE_USAGE, retMsg);
+				retMsg = "{'txref':'"+externalRefId+"','state':'FundsWithdrawn','status':'SUCCESS'}";
+				outboundHelper.sendMessage(PaymentGatewayConstants.CHANNEL_OUTBOUND_USAGE, retMsg);
+				break;
+			case "loanRepayment":
+				//  Put success response on outbound/response queue
+				retMsg = "{'txref':'"+externalRefId+"','state':'PaymentApplied','status':'SUCCESS'}";
+				outboundHelper.sendMessage(PaymentGatewayConstants.CHANNEL_OUTBOUND_USAGE, retMsg);
 				break;
 		}
 
@@ -254,10 +271,22 @@ public class InboundMessageHandler {
 				}
 				break;
 			case LOAN:
-				Loan loan = this.loanRepositoryWrapper.findNonClosedLoanByAccountNumber(paymentAccount);
-				// Verify that the client matches
-				if (loan != null && (loan.getClient().getId() == clientData.getId())) {
-					accountId = loan.getId();
+				if (paymentAccount == null) {
+					// We don't have a specific loan number for repayment - find the first loan
+					List<Loan> loans = this.loanRepositoryWrapper.findLoanByClientId(clientId);
+					Iterator<Loan> iterator = loans.iterator();
+					if (iterator.hasNext()) {
+						Loan loan = iterator.next();
+						if (!loan.isClosed()) {
+							accountId = Long.parseLong(loan.getAccountNumber());
+						}
+					}
+				} else {
+					Loan loan = this.loanRepositoryWrapper.findNonClosedLoanByAccountNumber(paymentAccount);
+					// Verify that the client matches
+					if (loan != null && (loan.getClient().getId() == clientData.getId())) {
+						accountId = loan.getId();
+					}
 				}
 				break;
 		}

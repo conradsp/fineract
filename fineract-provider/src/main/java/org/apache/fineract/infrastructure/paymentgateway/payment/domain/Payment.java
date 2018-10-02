@@ -34,7 +34,6 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentDirection;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentEntity;
 import org.apache.fineract.infrastructure.paymentgateway.payment.types.PaymentStatus;
-import org.apache.fineract.infrastructure.paymentgateway.paymentchannel.domain.PaymentChannel;
 import org.apache.fineract.useradministration.domain.AppUser;
 
 @Entity
@@ -77,15 +76,15 @@ public class Payment extends AbstractPersistableCustom<Long> {
 	private Date transactionDate;
 	@Column(name = "channel_response_message", length = 250)
 	private String channelResponseMessage;
-	@Column(name = "payment_channel_name", nullable = false)
-	private String paymentChannelName;
+	@Column(name = "payment_channel_id", nullable = false)
+	private String paymentChannelId;
 	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = true)
 	private AppUser createdBy;
 
 	public Payment(Long clientId, Long accountId, PaymentEntity paymentEntity, String paymentSourceAccount,
 			String paymentDestinationAccount, BigDecimal transactionAmount, PaymentStatus paymentStatus,
-			PaymentDirection paymentDirection, String paymentChannelName, AppUser createdBy) {
+			PaymentDirection paymentDirection, String paymentChannelId, AppUser createdBy) {
 		this.clientId = clientId;
 		this.accountId = accountId;
 		this.paymentEntity = paymentEntity.getValue();
@@ -94,17 +93,17 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.transactionAmount = transactionAmount;
 		this.paymentStatus = paymentStatus.getValue();
 		this.paymentDirection = paymentDirection.getValue();
-		this.paymentChannelName = paymentChannelName;
+		this.paymentChannelId = paymentChannelId;
 		this.createdBy = createdBy;
 	}
 
 	public Payment(Long clientId, long accountId, PaymentEntity paymentEntity, String paymentSourceAccount,
 			String paymentDestinationAccount, BigDecimal transactionAmount, PaymentStatus paymentStatus,
 			PaymentDirection paymentDirection, String externalRefId, String channelResponseMessage,
-			String paymentChannelName, AppUser createdBy, Date dateCreated, Date transactionDate,
+			String paymentChannelId, AppUser createdBy, Date dateCreated, Date transactionDate,
 			Date lastModified) {
 		this(clientId, accountId, paymentEntity, paymentSourceAccount, paymentDestinationAccount, transactionAmount,
-				paymentStatus, paymentDirection, paymentChannelName, createdBy);
+				paymentStatus, paymentDirection, paymentChannelId, createdBy);
 
 		this.dateCreated = dateCreated;
 		this.lastModified = lastModified;
@@ -250,12 +249,12 @@ public class Payment extends AbstractPersistableCustom<Long> {
 		this.channelResponseMessage = channelResponseMessage;
 	}
 
-	public String getPaymentChannelName() {
-		return paymentChannelName;
+	public String getPaymentChannelId() {
+		return paymentChannelId;
 	}
 
-	public void setPaymentChannelName(String paymentChannelName) {
-		this.paymentChannelName = paymentChannelName;
+	public void paymentChannelId(String paymentChannelId) {
+		this.paymentChannelId = paymentChannelId;
 	}
 
 	public AppUser getCreatedBy() {
